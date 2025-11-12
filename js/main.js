@@ -37,7 +37,11 @@ timer = null;
  * https://github.com/thomasahle/sunfish/blob/master/sunfish.py
  */
 
-var weights = { p: 100, n: 280, b: 320, r: 479, q: 929, k: 60000, k_e: 60000 };
+// TODO: this is where piece weights are set
+// going to keep everything multiplied by 100
+var weights = { p: 100, n: 300, b: 300, r: 500, q: 900, k: 2000, k_e: 2000 };
+
+// var weights = { p: 100, n: 280, b: 320, r: 479, q: 929, k: 60000, k_e: 60000 };
 var pst_w = {
   p: [
     [100, 100, 100, 100, 105, 100, 100, 100],
@@ -148,6 +152,7 @@ function evaluateBoard(game, move, prevSum, color) {
     return 0;
   }
 
+  // TODO: change this? get rid of it? should be covered by mobility calculation
   if (game.in_check()) {
     // Opponent is in check (good for us)
     if (move.color === color) {
@@ -168,6 +173,7 @@ function evaluateBoard(game, move, prevSum, color) {
     move.to.charCodeAt(0) - 'a'.charCodeAt(0),
   ];
 
+  //TODO: get rid of this?
   // Change endgame behavior for kings
   if (prevSum < -1500) {
     if (move.piece === 'k') {
@@ -301,6 +307,7 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
     }
 
     // Alpha-beta pruning
+    // TODO: get rid of this?
     if (alpha >= beta) {
       break;
     }
@@ -467,6 +474,7 @@ function reset() {
 /*
  * Event listeners for various buttons.
  */
+//TODO: can get rid of these except for compvscomp, reset
 $('#ruyLopezBtn').on('click', function () {
   reset();
   game.load(
