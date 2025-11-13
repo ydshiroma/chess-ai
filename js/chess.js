@@ -54,7 +54,7 @@ var Chess = function(fen) {
 
     var PIECE_OFFSETS = {
       n: [-12, -21, -19, -8, 12, 21, 19, 8], // Changed from [-18, -33, -31, -14, 18, 33, 31, 14]
-      b: [-11, -9, 11, 9],  // Changed from [-17, -15, 17, 15] (though bishop is removed)
+      // b: [-11, -9, 11, 9],  // Changed from [-17, -15, 17, 15] (though bishop is removed)
       r: [-10, 1, 10, -1],  // Changed from [-16, 1, 16, -1]
       q: [-11, -10, -9, 1, 11, 10, 9, -1],  // Changed from [-17, -16, -15, 1, 17, 16, 15, -1]
       k: [-11, -10, -9, 1, 11, 10, 9, -1]   // Changed from [-17, -16, -15, 1, 17, 16, 15, -1]
@@ -92,7 +92,9 @@ var Chess = function(fen) {
       -9,  0,  0,  0,  0,  0,-10,  0,  0,  0,  0,  0,-11
     ];
 
-    var SHIFTS = { p: 0, n: 1, b: 2, r: 3, q: 4, k: 5 }
+    //TODO: what does this do? was it right to remove the bishop?
+    var SHIFTS = { p: 0, n: 1, r: 2, q: 3, k: 4 }
+    //var SHIFTS = { p: 0, n: 1, b: 2, r: 3, q: 4, k: 5 }
 
     var FLAGS = {
       NORMAL: 'n',
@@ -206,7 +208,9 @@ var Chess = function(fen) {
       load(DEFAULT_POSITION)
     }
   
+    //TODO: is this the bad square logic?
     function load(fen, keep_headers) {
+      console.log("load function runs");
       if (typeof keep_headers === 'undefined') {
         keep_headers = false
       }
@@ -216,6 +220,7 @@ var Chess = function(fen) {
       var square = 0
   
       if (!validate_fen(fen).valid) {
+        console.log("fen invalid");
         return false
       }
   
@@ -223,15 +228,19 @@ var Chess = function(fen) {
   
       for (var i = 0; i < position.length; i++) {
         var piece = position.charAt(i)
+        console.log("piece: " + piece)
   
         if (piece === '/') {
           square += 4  // Changed from 8
+          console.log("square: " + square);
         } else if (is_digit(piece)) {
           square += parseInt(piece, 10)
+          console.log("square: " + square);
         } else {
           var color = piece < 'a' ? WHITE : BLACK
           put({ type: piece.toLowerCase(), color: color }, algebraic(square))
           square++
+          console.log("square: " + square);
         }
       }
   
@@ -265,6 +274,10 @@ var Chess = function(fen) {
      * we're at it
      */
     function validate_fen(fen) {
+      console.log("validate_fen runs")
+
+      //TODO: fix validation and get rid of this line (returns valid no matter what is happening)
+      //return { valid: true, error_number: 0, error: null }
       var errors = {
         0: 'No errors.',
         1: 'FEN string must contain six space-delimited fields.',
@@ -283,37 +296,44 @@ var Chess = function(fen) {
       /* 1st criterion: 6 space-seperated fields? */
       var tokens = fen.split(/\s+/)
       if (tokens.length !== 6) {
+        console.log("error 1");
         return { valid: false, error_number: 1, error: errors[1] }
       }
   
       /* 2nd criterion: move number field is a integer value > 0? */
       if (isNaN(tokens[5]) || parseInt(tokens[5], 10) <= 0) {
+        console.log("error 2");
         return { valid: false, error_number: 2, error: errors[2] }
       }
   
       /* 3rd criterion: half move counter is an integer >= 0? */
       if (isNaN(tokens[4]) || parseInt(tokens[4], 10) < 0) {
+        console.log("error 3");
         return { valid: false, error_number: 3, error: errors[3] }
       }
   
       /* 4th criterion: 4th field is a valid e.p.-string? */
-      if (!/^(-|[abcdefgh][36])$/.test(tokens[3])) {
+      if (!/^(-|[abcdef][36])$/.test(tokens[3])) {
+        console.log("error 4");
         return { valid: false, error_number: 4, error: errors[4] }
       }
   
       /* 5th criterion: 3th field is a valid castle-string? */
       if (!/^(KQ?k?q?|Qk?q?|kq?|q|-)$/.test(tokens[2])) {
+        console.log("error 5");
         return { valid: false, error_number: 5, error: errors[5] }
       }
   
       /* 6th criterion: 2nd field is "w" (white) or "b" (black)? */
       if (!/^(w|b)$/.test(tokens[1])) {
+        console.log("error 6");
         return { valid: false, error_number: 6, error: errors[6] }
       }
   
       /* 7th criterion: 1st field contains 8 rows? */
       var rows = tokens[0].split('/')
-      if (rows.length !== 8) {
+      if (rows.length !== 6) {
+        console.log("error 7");
         return { valid: false, error_number: 7, error: errors[7] }
       }
   
@@ -326,19 +346,22 @@ var Chess = function(fen) {
         for (var k = 0; k < rows[i].length; k++) {
           if (!isNaN(rows[i][k])) {
             if (previous_was_number) {
+              console.log("error 8");
               return { valid: false, error_number: 8, error: errors[8] }
             }
             sum_fields += parseInt(rows[i][k], 10)
             previous_was_number = true
           } else {
             if (!/^[prnbqkPRNBQK]$/.test(rows[i][k])) {
+              console.log("error 9");
               return { valid: false, error_number: 9, error: errors[9] }
             }
             sum_fields += 1
             previous_was_number = false
           }
         }
-        if (sum_fields !== 8) {
+        if (sum_fields !== 6) {
+          console.log("error 10");
           return { valid: false, error_number: 10, error: errors[10] }
         }
       }
@@ -347,6 +370,7 @@ var Chess = function(fen) {
         (tokens[3][1] == '3' && tokens[1] == 'w') ||
         (tokens[3][1] == '6' && tokens[1] == 'b')
       ) {
+        console.log("error 11");
         return { valid: false, error_number: 11, error: errors[11] }
       }
   
@@ -354,11 +378,50 @@ var Chess = function(fen) {
       return { valid: true, error_number: 0, error: errors[0] }
     }
   
+//TODO: I don't think this is working
 function generate_fen() {
+  console.log("generate_fen runs");
       var empty = 0
       var fen = ''
+      let test_list = [20, 21, 22, 23, 24, 25, 30, 31, 32, 33, 34, 35, 40, 41, 42, 43, 44, 45, 50, 51, 52, 53, 54, 55, 60, 61, 62, 63, 64, 65, 70, 71, 72, 73, 74, 75];
+
+      // for (let i = 0; i < test_list.length; i++) {
+      //   console.log("GENERATE_FEN i: " + i)
+      //   console.log("i in list: " + test_list[i])
+      //   let square_num = test_list[i];
+      //   console.log("board[20]: " + board[20])
+      //   console.log("board[square_num]: " + board[square_num])
+      //   console.log("board[square_num]: " + board[square_num].color)
+      //   console.log("square on board: " + board.test_list[i])
+      //   if (board[test_list[i]] == null) {
+      //     empty++
+      //   } else {
+      //     if (empty > 0) {
+      //       fen += empty
+      //       empty = 0
+      //     }
+      //     var color = board[test_list[i]].color
+      //     var piece = board[test_list[i]].type
   
+      //     fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
+      //   }
+  
+      //   // if ((i + 1) & 0x88) {
+      //   //   if (empty > 0) {
+      //   //     fen += empty
+      //   //   }
+  
+      //   //   if (i !== SQUARES.f1) {
+      //   //     fen += '/'
+      //   //   }
+  
+      //   //   empty = 0
+      //   //   i += 3  // Changed from 8
+      //   // }
+      // }
+      console.log("squares: " + JSON.stringify(SQUARES))
       for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
+        console.log("GENERATE_FEN i: " + i)
         if (board[i] == null) {
           empty++
         } else {
@@ -367,6 +430,7 @@ function generate_fen() {
             empty = 0
           }
           var color = board[i].color
+          console.log("color: " + color)
           var piece = board[i].type
   
           fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
@@ -385,6 +449,7 @@ function generate_fen() {
           i += 3  // Changed from 8
         }
       }
+      console.log("fen produced by generate_fen: " + fen)
   
       var cflags = ''
       if (castling[WHITE] & BITS.KSIDE_CASTLE) {
@@ -471,6 +536,7 @@ function generate_fen() {
       }
   
       update_setup(generate_fen())
+      console.log("fen: " + fen)
   
       return true
     }
@@ -1076,6 +1142,7 @@ function generate_fen() {
   
     //TODO: did I update this correctly?
     function ascii() {
+      console.log("ascii runs");
       var s = '   +------------------------+\n'
       for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
         /* display the rank */
@@ -1161,8 +1228,12 @@ function generate_fen() {
     }
   
     function algebraic(i) {
+      console.log("algebraic runs");
+      console.log("i: " + i)
       var f = file(i),
         r = rank(i)
+      console.log("f: " + f)
+      console.log("r: " + r)
       return 'abcdef'.substring(f, f + 1) + '654321'.substring(r, r + 1)
     }
   
@@ -1214,7 +1285,9 @@ function generate_fen() {
     /*****************************************************************************
      * DEBUGGING UTILITIES
      ****************************************************************************/
+    //TODO: could be problematic logic here, but this function doesn't seem to be running
     function perft(depth) {
+      console.log("perft runs");
       var moves = generate_moves({ legal: false })
       var nodes = 0
       var color = turn
@@ -1256,7 +1329,7 @@ function generate_fen() {
         var keys = []
         for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
           if (i & 0x88) {
-            i += 5
+            i += 3
             continue
           }
           keys.push(algebraic(i))
@@ -1359,25 +1432,26 @@ function generate_fen() {
       //TODO: problem is here?
       // initially i += 8
       // tried with 3, 4, 6
-      board: function() {
-        var output = [],
-          row = []
-  
-        for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
-          if (board[i] == null) {
-            row.push(null)
-          } else {
-            row.push({ type: board[i].type, color: board[i].color })
-          }
-          if ((i + 1) & 0x88) {
-            output.push(row)
-            row = []
-            i += 6
-          }
-        }
-  
-        return output
-      },
+board: function() {
+  console.log("board function runs");
+  var output = [],
+    row = []
+
+  for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
+    if (board[i] == null) {
+      row.push(null)
+    } else {
+      row.push({ type: board[i].type, color: board[i].color })
+    }
+    if ((i + 1) & 0x88) {
+      output.push(row)
+      row = []
+      i += 3  // Changed from 6
+    }
+  }
+
+  return output
+},
   
       pgn: function(options) {
         /* using the specification from http://www.chessclub.com/help/PGN-spec

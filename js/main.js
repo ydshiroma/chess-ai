@@ -12,12 +12,13 @@ var STACK_SIZE = 100; // maximum size of undo stack
 var board = null;
 var $board = $('#myBoard');
 console.log("$board: " + JSON.stringify($board))
-var game = new Chess();
+// var game = new Chess();
 
-// var game = new Chess(
-//   fen,
-//   { skipValidation: true },
-// )
+// validation still runs even with skipValidation flag
+var game = new Chess(
+  fen,
+  { skipValidation: true },
+)
 
 // var game = new Chess(fen);
 // let game = new Chess(
