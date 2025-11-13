@@ -9,8 +9,9 @@ const fen = 'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w KQkq - 0 1'
 
 var STACK_SIZE = 100; // maximum size of undo stack
 
-//var board = null;
+var board = null;
 var $board = $('#myBoard');
+console.log("$board: " + JSON.stringify($board))
 var game = new Chess();
 
 // var game = new Chess(

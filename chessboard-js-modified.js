@@ -242,6 +242,7 @@
     (H.square = "square-55d63"),
     (H.white = "white-1e1d7"),
     (window.Chessboard = function (e, f) {
+        console.log("window.chessboard runs")
       if (
         !(function () {
           if (se()) return !0;
