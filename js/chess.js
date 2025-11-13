@@ -1074,12 +1074,13 @@ function generate_fen() {
       return ''
     }
   
+    //TODO: did I update this correctly?
     function ascii() {
       var s = '   +------------------------+\n'
       for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
         /* display the rank */
         if (file(i) === 0) {
-          s += ' ' + '87654321'[rank(i)] + ' |'
+          s += ' ' + '654321'[rank(i)] + ' |'
         }
   
         /* empty piece */
@@ -1094,11 +1095,11 @@ function generate_fen() {
   
         if ((i + 1) & 0x88) {
           s += '|\n'
-          i += 8
+          i += 3
         }
       }
       s += '   +------------------------+\n'
-      s += '     a  b  c  d  e  f  g  h\n'
+      s += '     a  b  c  d  e  f\n'
   
       return s
     }
@@ -1112,7 +1113,7 @@ function generate_fen() {
       // this should parse invalid SAN like: Pe2-e4, Rc1c4, Qf3xf7
       if (sloppy) {
         var matches = clean_move.match(
-          /([pnbrqkPNBRQK])?([a-h][1-8])x?-?([a-h][1-8])([qrbnQRBN])?/
+          /([pnrqkPNRQK])?([a-f][1-6])x?-?([a-f][1-6])([qrnQRN])?/
         )
         if (matches) {
           var piece = matches[1]
@@ -1150,6 +1151,7 @@ function generate_fen() {
     /*****************************************************************************
      * UTILITY FUNCTIONS
      ****************************************************************************/
+    // TODO: is there a problem with these?
     function rank(i) {
       return i >> 4
     }
@@ -1161,7 +1163,7 @@ function generate_fen() {
     function algebraic(i) {
       var f = file(i),
         r = rank(i)
-      return 'abcdefgh'.substring(f, f + 1) + '87654321'.substring(r, r + 1)
+      return 'abcdef'.substring(f, f + 1) + '654321'.substring(r, r + 1)
     }
   
     function swap_color(c) {
@@ -1354,6 +1356,9 @@ function generate_fen() {
         return generate_fen()
       },
   
+      //TODO: problem is here?
+      // initially i += 8
+      // tried with 3, 4, 6
       board: function() {
         var output = [],
           row = []
@@ -1367,7 +1372,7 @@ function generate_fen() {
           if ((i + 1) & 0x88) {
             output.push(row)
             row = []
-            i += 8
+            i += 6
           }
         }
   
