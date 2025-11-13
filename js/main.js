@@ -5,21 +5,13 @@
  * Copyright (c) 2020 Zhang Zeyu
  */
 
+const fen = 'rnqqkqnr/pppppppp/8/8/8/8/PPPPPPPP/RNQQKQNR w KQkq - 0 1'
+
 var STACK_SIZE = 100; // maximum size of undo stack
 
 var board = null;
 var $board = $('#myBoard');
-
-var game = new Chess(
-  'rnqknr/pppppp/6/6/6/6/PPPPPP/RNQKNR w KQkq - 0 1',
-  { skipValidation: true },
-)
-
-// var game = new Chess(['r1k4r/p2nb1p1/2b4p/1p1n1p2/2PP4/3Q1NB1/1P3PPP/R52 b - - 0 19'], { skipValidation: true } = {});
-// var game = new Chess(
-//   'r1k4r/p2nb1p1/2b4p/1p1n1p2/2PP4/3Q1NB1/1P3PPP/R52 b - - 0 19',
-//   { skipValidation: true },
-// )
+var game = new Chess(fen);
 var globalSum = 0; // always from black's perspective. Negative for white's perspective.
 var whiteSquareGrey = '#a9a9a9';
 var blackSquareGrey = '#696969';
@@ -31,7 +23,7 @@ var positionCount;
 
 var config = {
   draggable: true,
-  position: 'start',
+  position: fen,
   onDragStart: onDragStart,
   onDrop: onDrop,
   onMouseoutSquare: onMouseoutSquare,
@@ -57,11 +49,12 @@ var weights = { p: 100, n: 300, b: 300, r: 500, q: 900, k: 2000, k_e: 2000 };
  */
 //TODO: instead of using prevSum, just add up value of all pieces on the board?
 function evaluateBoard(game, move, prevSum, color) {
-  // console.log("game: " + JSON.stringify(game));
+  console.log("game: " + JSON.stringify(game));
   console.log("move: " + JSON.stringify(move));
   // console.log("prevSum: " + prevSum);
   // console.log("color: " + color);
   //console.log("get pieces: " + game.getPieces({ type: 'n', color: 'w' }));
+  console.log("board: " + game.board)
 
   if (game.in_checkmate()) {
     // Opponent is in checkmate (good for us)

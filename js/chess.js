@@ -43,7 +43,11 @@ var Chess = function(fen) {
   
     //TODO change this
     var DEFAULT_POSITION =
+<<<<<<< HEAD
       'rnqknr/pppppp/6/6/6/6/PPPPPP/RNQKNR w KQkq - 0 1'
+=======
+      'rnqqkqnr/pppppppp/8/8/8/8/PPPPPPPP/RNQQKQNR w KQkq - 0 1'
+>>>>>>> fen-test
   
     var POSSIBLE_RESULTS = ['1-0', '0-1', '1/2-1/2', '*']
   
