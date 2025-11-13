@@ -43,72 +43,57 @@ var Chess = function(fen) {
   
     //TODO change this
     var DEFAULT_POSITION =
-<<<<<<< HEAD
-      'rnqknr/pppppp/6/6/6/6/PPPPPP/RNQKNR w KQkq - 0 1'
-=======
-      'rnqqkqnr/pppppppp/8/8/8/8/PPPPPPPP/RNQQKQNR w KQkq - 0 1'
->>>>>>> fen-test
+      'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w KQkq - 0 1'
   
     var POSSIBLE_RESULTS = ['1-0', '0-1', '1/2-1/2', '*']
   
     var PAWN_OFFSETS = {
-      b: [16, 32, 17, 15],
-      w: [-16, -32, -17, -15]
+      b: [10, 20, 11, 9],   // Changed from [16, 32, 17, 15]
+      w: [-10, -20, -11, -9] // Changed from [-16, -32, -17, -15]
     }
-  
-    //TODO: change this
+
     var PIECE_OFFSETS = {
-      n: [-18, -33, -31, -14, 18, 33, 31, 14],
-      b: [-17, -15, 17, 15],
-      r: [-16, 1, 16, -1],
-      q: [-17, -16, -15, 1, 17, 16, 15, -1],
-      k: [-17, -16, -15, 1, 17, 16, 15, -1]
+      n: [-12, -21, -19, -8, 12, 21, 19, 8], // Changed from [-18, -33, -31, -14, 18, 33, 31, 14]
+      b: [-11, -9, 11, 9],  // Changed from [-17, -15, 17, 15] (though bishop is removed)
+      r: [-10, 1, 10, -1],  // Changed from [-16, 1, 16, -1]
+      q: [-11, -10, -9, 1, 11, 10, 9, -1],  // Changed from [-17, -16, -15, 1, 17, 16, 15, -1]
+      k: [-11, -10, -9, 1, 11, 10, 9, -1]   // Changed from [-17, -16, -15, 1, 17, 16, 15, -1]
     }
-  
-    // prettier-ignore
-    //TODO: does this need to be changed?
+
     var ATTACKS = [
-      20, 0, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0, 0,20, 0,
-       0,20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0,20, 0, 0,
-       0, 0,20, 0, 0, 0, 0, 24,  0, 0, 0, 0,20, 0, 0, 0,
-       0, 0, 0,20, 0, 0, 0, 24,  0, 0, 0,20, 0, 0, 0, 0,
-       0, 0, 0, 0,20, 0, 0, 24,  0, 0,20, 0, 0, 0, 0, 0,
-       0, 0, 0, 0, 0,20, 2, 24,  2,20, 0, 0, 0, 0, 0, 0,
-       0, 0, 0, 0, 0, 2,53, 56, 53, 2, 0, 0, 0, 0, 0, 0,
-      24,24,24,24,24,24,56,  0, 56,24,24,24,24,24,24, 0,
-       0, 0, 0, 0, 0, 2,53, 56, 53, 2, 0, 0, 0, 0, 0, 0,
-       0, 0, 0, 0, 0,20, 2, 24,  2,20, 0, 0, 0, 0, 0, 0,
-       0, 0, 0, 0,20, 0, 0, 24,  0, 0,20, 0, 0, 0, 0, 0,
-       0, 0, 0,20, 0, 0, 0, 24,  0, 0, 0,20, 0, 0, 0, 0,
-       0, 0,20, 0, 0, 0, 0, 24,  0, 0, 0, 0,20, 0, 0, 0,
-       0,20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0,20, 0, 0,
-      20, 0, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0, 0,20
+      20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0, 20, 0,
+      0,20, 0, 0, 0, 0, 24,  0, 0, 0, 0,20, 0, 0,
+      0, 0,20, 0, 0, 0, 24,  0, 0, 0,20, 0, 0, 0,
+      0, 0, 0,20, 0, 2, 24,  2,20, 0, 0, 0, 0, 0,
+      0, 0, 0, 0,20, 2, 24,  2,20, 0, 0, 0, 0, 0,
+      0, 0, 0, 0, 2,53, 56, 53, 2, 0, 0, 0, 0, 0,
+      24,24,24,24,24,24, 0, 56,24,24,24,24,24, 0,
+      0, 0, 0, 0, 2,53, 56, 53, 2, 0, 0, 0, 0, 0,
+      0, 0, 0, 0,20, 2, 24,  2,20, 0, 0, 0, 0, 0,
+      0, 0, 0,20, 0, 2, 24,  2,20, 0, 0, 0, 0, 0,
+      0, 0,20, 0, 0, 0, 24,  0, 0, 0,20, 0, 0, 0,
+      0,20, 0, 0, 0, 0, 24,  0, 0, 0, 0,20, 0, 0,
+      20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0,20
     ];
-  
-    // prettier-ignore
-    //TODO: does this need to be changed?
+
     var RAYS = [
-       17,  0,  0,  0,  0,  0,  0, 16,  0,  0,  0,  0,  0,  0, 15, 0,
-        0, 17,  0,  0,  0,  0,  0, 16,  0,  0,  0,  0,  0, 15,  0, 0,
-        0,  0, 17,  0,  0,  0,  0, 16,  0,  0,  0,  0, 15,  0,  0, 0,
-        0,  0,  0, 17,  0,  0,  0, 16,  0,  0,  0, 15,  0,  0,  0, 0,
-        0,  0,  0,  0, 17,  0,  0, 16,  0,  0, 15,  0,  0,  0,  0, 0,
-        0,  0,  0,  0,  0, 17,  0, 16,  0, 15,  0,  0,  0,  0,  0, 0,
-        0,  0,  0,  0,  0,  0, 17, 16, 15,  0,  0,  0,  0,  0,  0, 0,
-        1,  1,  1,  1,  1,  1,  1,  0, -1, -1,  -1,-1, -1, -1, -1, 0,
-        0,  0,  0,  0,  0,  0,-15,-16,-17,  0,  0,  0,  0,  0,  0, 0,
-        0,  0,  0,  0,  0,-15,  0,-16,  0,-17,  0,  0,  0,  0,  0, 0,
-        0,  0,  0,  0,-15,  0,  0,-16,  0,  0,-17,  0,  0,  0,  0, 0,
-        0,  0,  0,-15,  0,  0,  0,-16,  0,  0,  0,-17,  0,  0,  0, 0,
-        0,  0,-15,  0,  0,  0,  0,-16,  0,  0,  0,  0,-17,  0,  0, 0,
-        0,-15,  0,  0,  0,  0,  0,-16,  0,  0,  0,  0,  0,-17,  0, 0,
-      -15,  0,  0,  0,  0,  0,  0,-16,  0,  0,  0,  0,  0,  0,-17
+      11,  0,  0,  0,  0,  0, 10,  0,  0,  0,  0,  0, 9, 0,
+        0, 11,  0,  0,  0,  0, 10,  0,  0,  0,  0, 9,  0, 0,
+        0,  0, 11,  0,  0,  0, 10,  0,  0,  0, 9,  0,  0, 0,
+        0,  0,  0, 11,  0,  0, 10,  0,  0, 9,  0,  0,  0, 0,
+        0,  0,  0,  0, 11,  0, 10,  0, 9,  0,  0,  0,  0, 0,
+        0,  0,  0,  0,  0, 11, 10, 9,  0,  0,  0,  0,  0, 0,
+        1,  1,  1,  1,  1,  1,  0, -1, -1, -1, -1, -1, -1, 0,
+        0,  0,  0,  0,  0,-9,-10,-11,  0,  0,  0,  0,  0, 0,
+        0,  0,  0,  0,-9,  0,-10,  0,-11,  0,  0,  0,  0, 0,
+        0,  0,  0,-9,  0,  0,-10,  0,  0,-11,  0,  0,  0, 0,
+        0,  0,-9,  0,  0,  0,-10,  0,  0,  0,-11,  0,  0, 0,
+        0,-9,  0,  0,  0,  0,-10,  0,  0,  0,  0,-11,  0, 0,
+      -9,  0,  0,  0,  0,  0,-10,  0,  0,  0,  0,  0,-11
     ];
-  
-    //TODO: change
+
     var SHIFTS = { p: 0, n: 1, b: 2, r: 3, q: 4, k: 5 }
-    
-    //TODO: delete captures
+
     var FLAGS = {
       NORMAL: 'n',
       CAPTURE: 'c',
@@ -118,7 +103,7 @@ var Chess = function(fen) {
       KSIDE_CASTLE: 'k',
       QSIDE_CASTLE: 'q'
     }
-  
+
     var BITS = {
       NORMAL: 1,
       CAPTURE: 2,
@@ -139,13 +124,13 @@ var Chess = function(fen) {
   
     // prettier-ignore
     var SQUARES = {
-      a6:  32, b6:  33, c6:  34, d6:  35, e6:  36, f6:  37,
-      a5:  48, b5:  49, c5:  50, d5:  51, e5:  52, f5:  53,
-      a4:  64, b4:  65, c4:  66, d4:  67, e4:  68, f4:  69,
-      a3:  80, b3:  81, c3:  82, d3:  83, e3:  84, f3:  85,
-      a2:  96, b2:  97, c2:  98, d2:  99, e2: 100, f2: 101,
-      a1: 112, b1: 113, c1: 114, d1: 115, e1: 116, f1: 117,
-    };
+  a6:  20, b6:  21, c6:  22, d6:  23, e6:  24, f6:  25,
+  a5:  30, b5:  31, c5:  32, d5:  33, e5:  34, f5:  35,
+  a4:  40, b4:  41, c4:  42, d4:  43, e4:  44, f4:  45,
+  a3:  50, b3:  51, c3:  52, d3:  53, e3:  54, f3:  55,
+  a2:  60, b2:  61, c2:  62, d2:  63, e2:  64, f2:  65,
+  a1:  70, b1:  71, c1:  72, d1:  73, e1:  74, f1:  75,
+};
   
     var ROOKS = {
       w: [
@@ -159,7 +144,7 @@ var Chess = function(fen) {
     }
   
     //TODO: change board size here
-    var board = new Array(72)
+    var board = new Array(128)
     var kings = { w: EMPTY, b: EMPTY }
     var turn = WHITE
     //TODO: something with this
@@ -185,7 +170,7 @@ var Chess = function(fen) {
         keep_headers = false
       }
   
-      board = new Array(72)
+      board = new Array(128)
       kings = { w: EMPTY, b: EMPTY }
       turn = WHITE
       castling = { w: 0, b: 0 }
@@ -387,7 +372,7 @@ var Chess = function(fen) {
           fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
         }
   
-        if ((i + 1) & 0x72) {
+        if ((i + 1) & 0x88) {
           if (empty > 0) {
             fen += empty
           }
@@ -529,7 +514,7 @@ var Chess = function(fen) {
         /* if pawn promotion */
         if (
           board[from].type === PAWN &&
-          (rank(to) === RANK_8 || rank(to) === RANK_1)
+          (rank(to) === RANK_6 || rank(to) === RANK_1)
         ) {
           var pieces = [QUEEN, ROOK, KNIGHT]
           for (var i = 0, len = pieces.length; i < len; i++) {
@@ -568,8 +553,8 @@ var Chess = function(fen) {
   
       for (var i = first_sq; i <= last_sq; i++) {
         /* did we run off the end of the board */
-        if (i & 0x72) {
-          i += 5
+        if (i & 0x88) {
+          i += 3
           continue
         }
   
@@ -594,7 +579,7 @@ var Chess = function(fen) {
           /* pawn captures */
           for (j = 2; j < 4; j++) {
             var square = i + PAWN_OFFSETS[us][j]
-            if (square & 0x72) continue
+            if (square & 0x88) continue
   
             if (board[square] != null && board[square].color === them) {
               add_move(board, moves, i, square, BITS.CAPTURE)
@@ -609,7 +594,7 @@ var Chess = function(fen) {
   
             while (true) {
               square += offset
-              if (square & 0x72) break
+              if (square & 0x88) break
   
               if (board[square] == null) {
                 add_move(board, moves, i, square, BITS.NORMAL)
@@ -684,7 +669,7 @@ var Chess = function(fen) {
       return legal_moves
     }
   
-    /* convert a move from 0x72 coordinates to Standard Algebraic Notation
+    /* convert a move from 0x88 coordinates to Standard Algebraic Notation
      * (SAN)
      *
      * @param {boolean} sloppy Use the sloppy SAN generator to work around over
@@ -743,8 +728,8 @@ var Chess = function(fen) {
     function attacked(color, square) {
       for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
         /* did we run off the end of the board */
-        if (i & 0x72) {
-          i += 5
+        if (i & 0x88) {
+          i += 3
           continue
         }
   
@@ -811,8 +796,8 @@ var Chess = function(fen) {
   
       for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
         sq_color = (sq_color + 1) % 2
-        if (i & 0x72) {
-          i += 5
+        if (i & 0x88) {
+          i += 3
           continue
         }
   
@@ -1107,7 +1092,7 @@ var Chess = function(fen) {
           s += ' ' + symbol + ' '
         }
   
-        if ((i + 1) & 0x72) {
+        if ((i + 1) & 0x88) {
           s += '|\n'
           i += 8
         }
@@ -1118,7 +1103,7 @@ var Chess = function(fen) {
       return s
     }
   
-    // convert a move from Standard Algebraic Notation (SAN) to 0x72 coordinates
+    // convert a move from Standard Algebraic Notation (SAN) to 0x88 coordinates
     function move_from_san(move, sloppy) {
       // strip off any move decorations: e.g Nf3+?!
       var clean_move = stripped_san(move)
@@ -1268,7 +1253,7 @@ var Chess = function(fen) {
          */
         var keys = []
         for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
-          if (i & 0x72) {
+          if (i & 0x88) {
             i += 5
             continue
           }
@@ -1290,8 +1275,8 @@ var Chess = function(fen) {
       },
   
       moves: function(options) {
-        /* The internal representation of a chess move is in 0x72 format, and
-         * not meant to be human-readable.  The code below converts the 0x72
+        /* The internal representation of a chess move is in 0x88 format, and
+         * not meant to be human-readable.  The code below converts the 0x88
          * square coordinates to algebraic coordinates.  It also prunes an
          * unnecessary move keys resulting from a verbose call.
          */
@@ -1379,7 +1364,7 @@ var Chess = function(fen) {
           } else {
             row.push({ type: board[i].type, color: board[i].color })
           }
-          if ((i + 1) & 0x72) {
+          if ((i + 1) & 0x88) {
             output.push(row)
             row = []
             i += 8
@@ -1839,8 +1824,8 @@ var Chess = function(fen) {
   
       square_color: function(square) {
         if (square in SQUARES) {
-          var sq_0x72 = SQUARES[square]
-          return (rank(sq_0x72) + file(sq_0x72)) % 2 === 0 ? 'light' : 'dark'
+          var sq_0x88 = SQUARES[square]
+          return (rank(sq_0x88) + file(sq_0x88)) % 2 === 0 ? 'light' : 'dark'
         }
   
         return null
