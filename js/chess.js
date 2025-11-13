@@ -225,7 +225,7 @@ var Chess = function(fen) {
         var piece = position.charAt(i)
   
         if (piece === '/') {
-          square += 8
+          square += 4  // Changed from 8
         } else if (is_digit(piece)) {
           square += parseInt(piece, 10)
         } else {
@@ -354,7 +354,7 @@ var Chess = function(fen) {
       return { valid: true, error_number: 0, error: errors[0] }
     }
   
-    function generate_fen() {
+function generate_fen() {
       var empty = 0
       var fen = ''
   
@@ -382,7 +382,7 @@ var Chess = function(fen) {
           }
   
           empty = 0
-          i += 8
+          i += 3  // Changed from 8
         }
       }
   

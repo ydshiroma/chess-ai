@@ -11,7 +11,11 @@ var STACK_SIZE = 100; // maximum size of undo stack
 
 var board = null;
 var $board = $('#myBoard');
-var game = new Chess(fen);
+// var game = new Chess(fen);
+let game = new Chess(
+  fen,
+  { skipValidation: true },
+)
 var globalSum = 0; // always from black's perspective. Negative for white's perspective.
 var whiteSquareGrey = '#a9a9a9';
 var blackSquareGrey = '#696969';
