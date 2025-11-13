@@ -39,7 +39,7 @@ var Chess = function(fen) {
     var QUEEN = 'q'
     var KING = 'k'
   
-    var SYMBOLS = 'pnbrqkPNBRQK'
+    var SYMBOLS = 'pnrqkPNRQK'
   
     //TODO change this
     var DEFAULT_POSITION =
@@ -126,40 +126,36 @@ var Chess = function(fen) {
     }
   
     //TODO: change this
-    var RANK_1 = 7
-    var RANK_2 = 6
-    var RANK_3 = 5
-    var RANK_4 = 4
-    var RANK_5 = 3
-    var RANK_6 = 2
-    var RANK_7 = 1
-    var RANK_8 = 0
+    var RANK_1 = 5
+    var RANK_2 = 4
+    var RANK_3 = 3
+    var RANK_4 = 2
+    var RANK_5 = 1
+    var RANK_6 = 0
   
     // prettier-ignore
     var SQUARES = {
-      a8:   0, b8:   1, c8:   2, d8:   3, e8:   4, f8:   5, g8:   6, h8:   7,
-      a7:  16, b7:  17, c7:  18, d7:  19, e7:  20, f7:  21, g7:  22, h7:  23,
-      a6:  32, b6:  33, c6:  34, d6:  35, e6:  36, f6:  37, g6:  38, h6:  39,
-      a5:  48, b5:  49, c5:  50, d5:  51, e5:  52, f5:  53, g5:  54, h5:  55,
-      a4:  64, b4:  65, c4:  66, d4:  67, e4:  68, f4:  69, g4:  70, h4:  71,
-      a3:  80, b3:  81, c3:  82, d3:  83, e3:  84, f3:  85, g3:  86, h3:  87,
-      a2:  96, b2:  97, c2:  98, d2:  99, e2: 100, f2: 101, g2: 102, h2: 103,
-      a1: 112, b1: 113, c1: 114, d1: 115, e1: 116, f1: 117, g1: 118, h1: 119
+      a6:  32, b6:  33, c6:  34, d6:  35, e6:  36, f6:  37,
+      a5:  48, b5:  49, c5:  50, d5:  51, e5:  52, f5:  53,
+      a4:  64, b4:  65, c4:  66, d4:  67, e4:  68, f4:  69,
+      a3:  80, b3:  81, c3:  82, d3:  83, e3:  84, f3:  85,
+      a2:  96, b2:  97, c2:  98, d2:  99, e2: 100, f2: 101,
+      a1: 112, b1: 113, c1: 114, d1: 115, e1: 116, f1: 117,
     };
   
     var ROOKS = {
       w: [
         { square: SQUARES.a1, flag: BITS.QSIDE_CASTLE },
-        { square: SQUARES.h1, flag: BITS.KSIDE_CASTLE }
+        { square: SQUARES.f1, flag: BITS.KSIDE_CASTLE }
       ],
       b: [
-        { square: SQUARES.a8, flag: BITS.QSIDE_CASTLE },
-        { square: SQUARES.h8, flag: BITS.KSIDE_CASTLE }
+        { square: SQUARES.a6, flag: BITS.QSIDE_CASTLE },
+        { square: SQUARES.f6, flag: BITS.KSIDE_CASTLE }
       ]
     }
   
     //TODO: change board size here
-    var board = new Array(128)
+    var board = new Array(72)
     var kings = { w: EMPTY, b: EMPTY }
     var turn = WHITE
     //TODO: something with this
@@ -185,7 +181,7 @@ var Chess = function(fen) {
         keep_headers = false
       }
   
-      board = new Array(128)
+      board = new Array(72)
       kings = { w: EMPTY, b: EMPTY }
       turn = WHITE
       castling = { w: 0, b: 0 }
@@ -373,7 +369,7 @@ var Chess = function(fen) {
       var empty = 0
       var fen = ''
   
-      for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+      for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
         if (board[i] == null) {
           empty++
         } else {
@@ -387,12 +383,12 @@ var Chess = function(fen) {
           fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
         }
   
-        if ((i + 1) & 0x88) {
+        if ((i + 1) & 0x72) {
           if (empty > 0) {
             fen += empty
           }
   
-          if (i !== SQUARES.h1) {
+          if (i !== SQUARES.f1) {
             fen += '/'
           }
   
@@ -543,10 +539,10 @@ var Chess = function(fen) {
       var moves = []
       var us = turn
       var them = swap_color(us)
-      var second_rank = { b: RANK_7, w: RANK_2 }
+      var second_rank = { b: RANK_5, w: RANK_2 }
   
-      var first_sq = SQUARES.a8
-      var last_sq = SQUARES.h1
+      var first_sq = SQUARES.a6
+      var last_sq = SQUARES.f1
       var single_square = false
   
       /* do we want legal moves? */
@@ -568,8 +564,8 @@ var Chess = function(fen) {
   
       for (var i = first_sq; i <= last_sq; i++) {
         /* did we run off the end of the board */
-        if (i & 0x88) {
-          i += 7
+        if (i & 0x72) {
+          i += 5
           continue
         }
   
@@ -594,7 +590,7 @@ var Chess = function(fen) {
           /* pawn captures */
           for (j = 2; j < 4; j++) {
             var square = i + PAWN_OFFSETS[us][j]
-            if (square & 0x88) continue
+            if (square & 0x72) continue
   
             if (board[square] != null && board[square].color === them) {
               add_move(board, moves, i, square, BITS.CAPTURE)
@@ -609,7 +605,7 @@ var Chess = function(fen) {
   
             while (true) {
               square += offset
-              if (square & 0x88) break
+              if (square & 0x72) break
   
               if (board[square] == null) {
                 add_move(board, moves, i, square, BITS.NORMAL)
@@ -684,7 +680,7 @@ var Chess = function(fen) {
       return legal_moves
     }
   
-    /* convert a move from 0x88 coordinates to Standard Algebraic Notation
+    /* convert a move from 0x72 coordinates to Standard Algebraic Notation
      * (SAN)
      *
      * @param {boolean} sloppy Use the sloppy SAN generator to work around over
@@ -741,10 +737,10 @@ var Chess = function(fen) {
     }
   
     function attacked(color, square) {
-      for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+      for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
         /* did we run off the end of the board */
-        if (i & 0x88) {
-          i += 7
+        if (i & 0x72) {
+          i += 5
           continue
         }
   
@@ -809,10 +805,10 @@ var Chess = function(fen) {
       var num_pieces = 0
       var sq_color = 0
   
-      for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+      for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
         sq_color = (sq_color + 1) % 2
-        if (i & 0x88) {
-          i += 7
+        if (i & 0x72) {
+          i += 5
           continue
         }
   
@@ -1091,7 +1087,7 @@ var Chess = function(fen) {
   
     function ascii() {
       var s = '   +------------------------+\n'
-      for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+      for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
         /* display the rank */
         if (file(i) === 0) {
           s += ' ' + '87654321'[rank(i)] + ' |'
@@ -1107,7 +1103,7 @@ var Chess = function(fen) {
           s += ' ' + symbol + ' '
         }
   
-        if ((i + 1) & 0x88) {
+        if ((i + 1) & 0x72) {
           s += '|\n'
           i += 8
         }
@@ -1118,7 +1114,7 @@ var Chess = function(fen) {
       return s
     }
   
-    // convert a move from Standard Algebraic Notation (SAN) to 0x88 coordinates
+    // convert a move from Standard Algebraic Notation (SAN) to 0x72 coordinates
     function move_from_san(move, sloppy) {
       // strip off any move decorations: e.g Nf3+?!
       var clean_move = stripped_san(move)
@@ -1267,9 +1263,9 @@ var Chess = function(fen) {
          * ordered correctly
          */
         var keys = []
-        for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
-          if (i & 0x88) {
-            i += 7
+        for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
+          if (i & 0x72) {
+            i += 5
             continue
           }
           keys.push(algebraic(i))
@@ -1290,8 +1286,8 @@ var Chess = function(fen) {
       },
   
       moves: function(options) {
-        /* The internal representation of a chess move is in 0x88 format, and
-         * not meant to be human-readable.  The code below converts the 0x88
+        /* The internal representation of a chess move is in 0x72 format, and
+         * not meant to be human-readable.  The code below converts the 0x72
          * square coordinates to algebraic coordinates.  It also prunes an
          * unnecessary move keys resulting from a verbose call.
          */
@@ -1373,13 +1369,13 @@ var Chess = function(fen) {
         var output = [],
           row = []
   
-        for (var i = SQUARES.a8; i <= SQUARES.h1; i++) {
+        for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
           if (board[i] == null) {
             row.push(null)
           } else {
             row.push({ type: board[i].type, color: board[i].color })
           }
-          if ((i + 1) & 0x88) {
+          if ((i + 1) & 0x72) {
             output.push(row)
             row = []
             i += 8
@@ -1635,7 +1631,7 @@ var Chess = function(fen) {
             .map(function(c) {
               /* encodeURI doesn't transform most ASCII characters,
                * so we handle these ourselves */
-              return c.charCodeAt(0) < 128
+              return c.charCodeAt(0) < 72
                 ? c.charCodeAt(0).toString(16)
                 : encodeURIComponent(c).replace(/\%/g, '').toLowerCase()
             })
@@ -1757,7 +1753,7 @@ var Chess = function(fen) {
          * .move('Nxb7')      <- where 'move' is a case-sensitive SAN string
          *
          * .move({ from: 'h7', <- where the 'move' is a move object (additional
-         *         to :'h8',      fields are ignored)
+         *         to :'f6',      fields are ignored)
          *         promotion: 'q',
          *      })
          */
@@ -1839,8 +1835,8 @@ var Chess = function(fen) {
   
       square_color: function(square) {
         if (square in SQUARES) {
-          var sq_0x88 = SQUARES[square]
-          return (rank(sq_0x88) + file(sq_0x88)) % 2 === 0 ? 'light' : 'dark'
+          var sq_0x72 = SQUARES[square]
+          return (rank(sq_0x72) + file(sq_0x72)) % 2 === 0 ? 'light' : 'dark'
         }
   
         return null

@@ -9,7 +9,17 @@ var STACK_SIZE = 100; // maximum size of undo stack
 
 var board = null;
 var $board = $('#myBoard');
-var game = new Chess();
+
+var game = new Chess(
+  'rnqknr/pppppp/6/6/6/6/PPPPPP/RNQKNR w KQkq - 0 1',
+  { skipValidation: true },
+)
+
+// var game = new Chess(['r1k4r/p2nb1p1/2b4p/1p1n1p2/2PP4/3Q1NB1/1P3PPP/R52 b - - 0 19'], { skipValidation: true } = {});
+// var game = new Chess(
+//   'r1k4r/p2nb1p1/2b4p/1p1n1p2/2PP4/3Q1NB1/1P3PPP/R52 b - - 0 19',
+//   { skipValidation: true },
+// )
 var globalSum = 0; // always from black's perspective. Negative for white's perspective.
 var whiteSquareGrey = '#a9a9a9';
 var blackSquareGrey = '#696969';
