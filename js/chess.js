@@ -33,15 +33,17 @@ var Chess = function(fen) {
   
     var PAWN = 'p'
     var KNIGHT = 'n'
-    var BISHOP = 'b'
+    //TODO: delete
+    //var BISHOP = 'b'
     var ROOK = 'r'
     var QUEEN = 'q'
     var KING = 'k'
   
     var SYMBOLS = 'pnbrqkPNBRQK'
   
+    //TODO change this
     var DEFAULT_POSITION =
-      'rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1'
+      'rnqknr/pppppp/6/6/6/6/PPPPPP/RNQKNR w KQkq - 0 1'
   
     var POSSIBLE_RESULTS = ['1-0', '0-1', '1/2-1/2', '*']
   
@@ -50,6 +52,7 @@ var Chess = function(fen) {
       w: [-16, -32, -17, -15]
     }
   
+    //TODO: change this
     var PIECE_OFFSETS = {
       n: [-18, -33, -31, -14, 18, 33, 31, 14],
       b: [-17, -15, 17, 15],
@@ -59,6 +62,7 @@ var Chess = function(fen) {
     }
   
     // prettier-ignore
+    //TODO: does this need to be changed?
     var ATTACKS = [
       20, 0, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0, 0,20, 0,
        0,20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0,20, 0, 0,
@@ -78,6 +82,7 @@ var Chess = function(fen) {
     ];
   
     // prettier-ignore
+    //TODO: does this need to be changed?
     var RAYS = [
        17,  0,  0,  0,  0,  0,  0, 16,  0,  0,  0,  0,  0,  0, 15, 0,
         0, 17,  0,  0,  0,  0,  0, 16,  0,  0,  0,  0,  0, 15,  0, 0,
@@ -96,8 +101,10 @@ var Chess = function(fen) {
       -15,  0,  0,  0,  0,  0,  0,-16,  0,  0,  0,  0,  0,  0,-17
     ];
   
+    //TODO: change
     var SHIFTS = { p: 0, n: 1, b: 2, r: 3, q: 4, k: 5 }
-  
+    
+    //TODO: delete captures
     var FLAGS = {
       NORMAL: 'n',
       CAPTURE: 'c',
@@ -118,6 +125,7 @@ var Chess = function(fen) {
       QSIDE_CASTLE: 64
     }
   
+    //TODO: change this
     var RANK_1 = 7
     var RANK_2 = 6
     var RANK_3 = 5
@@ -150,9 +158,11 @@ var Chess = function(fen) {
       ]
     }
   
+    //TODO: change board size here
     var board = new Array(128)
     var kings = { w: EMPTY, b: EMPTY }
     var turn = WHITE
+    //TODO: something with this
     var castling = { w: 0, b: 0 }
     var ep_square = EMPTY
     var half_moves = 0
@@ -521,7 +531,7 @@ var Chess = function(fen) {
           board[from].type === PAWN &&
           (rank(to) === RANK_8 || rank(to) === RANK_1)
         ) {
-          var pieces = [QUEEN, ROOK, BISHOP, KNIGHT]
+          var pieces = [QUEEN, ROOK, KNIGHT]
           for (var i = 0, len = pieces.length; i < len; i++) {
             moves.push(build_move(board, from, to, flags, pieces[i]))
           }
@@ -795,7 +805,7 @@ var Chess = function(fen) {
   
     function insufficient_material() {
       var pieces = {}
-      var bishops = []
+      // var bishops = []
       var num_pieces = 0
       var sq_color = 0
   
@@ -809,9 +819,9 @@ var Chess = function(fen) {
         var piece = board[i]
         if (piece) {
           pieces[piece.type] = piece.type in pieces ? pieces[piece.type] + 1 : 1
-          if (piece.type === BISHOP) {
-            bishops.push(sq_color)
-          }
+          // if (piece.type === BISHOP) {
+          //   bishops.push(sq_color)
+          // }
           num_pieces++
         }
       }
@@ -822,19 +832,9 @@ var Chess = function(fen) {
       } else if (
         /* k vs. kn .... or .... k vs. kb */
         num_pieces === 3 &&
-        (pieces[BISHOP] === 1 || pieces[KNIGHT] === 1)
+        pieces[KNIGHT] === 1
       ) {
         return true
-      } else if (num_pieces === pieces[BISHOP] + 2) {
-        /* kb vs. kb where any number of bishops are all on the same color */
-        var sum = 0
-        var len = bishops.length
-        for (var i = 0; i < len; i++) {
-          sum += bishops[i]
-        }
-        if (sum === 0 || sum === len) {
-          return true
-        }
       }
   
       return false
@@ -1256,7 +1256,6 @@ var Chess = function(fen) {
       BLACK: BLACK,
       PAWN: PAWN,
       KNIGHT: KNIGHT,
-      BISHOP: BISHOP,
       ROOK: ROOK,
       QUEEN: QUEEN,
       KING: KING,
