@@ -5,11 +5,13 @@
  * Copyright (c) 2020 Zhang Zeyu
  */
 
+const fen = 'rnqqkqnr/pppppppp/8/8/8/8/PPPPPPPP/RNQQKQNR w KQkq - 0 1'
+
 var STACK_SIZE = 100; // maximum size of undo stack
 
 var board = null;
 var $board = $('#myBoard');
-var game = new Chess();
+var game = new Chess(fen);
 var globalSum = 0; // always from black's perspective. Negative for white's perspective.
 var whiteSquareGrey = '#a9a9a9';
 var blackSquareGrey = '#696969';
@@ -21,7 +23,7 @@ var positionCount;
 
 var config = {
   draggable: true,
-  position: 'start',
+  position: fen,
   onDragStart: onDragStart,
   onDrop: onDrop,
   onMouseoutSquare: onMouseoutSquare,
