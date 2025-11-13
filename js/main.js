@@ -47,11 +47,12 @@ var weights = { p: 100, n: 300, b: 300, r: 500, q: 900, k: 2000, k_e: 2000 };
  */
 //TODO: instead of using prevSum, just add up value of all pieces on the board?
 function evaluateBoard(game, move, prevSum, color) {
-  // console.log("game: " + JSON.stringify(game));
+  console.log("game: " + JSON.stringify(game));
   console.log("move: " + JSON.stringify(move));
   // console.log("prevSum: " + prevSum);
   // console.log("color: " + color);
   //console.log("get pieces: " + game.getPieces({ type: 'n', color: 'w' }));
+  console.log("board: " + game.board)
 
   if (game.in_checkmate()) {
     // Opponent is in checkmate (good for us)
