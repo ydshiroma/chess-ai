@@ -125,13 +125,22 @@ var Chess = function(fen) {
     var RANK_6 = 0
   
     // prettier-ignore
-    var SQUARES = {
-  a6:  20, b6:  21, c6:  22, d6:  23, e6:  24, f6:  25,
-  a5:  30, b5:  31, c5:  32, d5:  33, e5:  34, f5:  35,
-  a4:  40, b4:  41, c4:  42, d4:  43, e4:  44, f4:  45,
-  a3:  50, b3:  51, c3:  52, d3:  53, e3:  54, f3:  55,
-  a2:  60, b2:  61, c2:  62, d2:  63, e2:  64, f2:  65,
-  a1:  70, b1:  71, c1:  72, d1:  73, e1:  74, f1:  75,
+//     var SQUARES = {
+//   a6:  20, b6:  21, c6:  22, d6:  23, e6:  24, f6:  25,
+//   a5:  30, b5:  31, c5:  32, d5:  33, e5:  34, f5:  35,
+//   a4:  40, b4:  41, c4:  42, d4:  43, e4:  44, f4:  45,
+//   a3:  50, b3:  51, c3:  52, d3:  53, e3:  54, f3:  55,
+//   a2:  60, b2:  61, c2:  62, d2:  63, e2:  64, f2:  65,
+//   a1:  70, b1:  71, c1:  72, d1:  73, e1:  74, f1:  75,
+// };
+
+var SQUARES = {
+  a6:  16, b6:  17, c6:  18, d6:  19, e6:  20, f6:  21,
+  a5:  32, b5:  33, c5:  34, d5:  35, e5:  36, f5:  37,
+  a4:  48, b4:  49, c4:  50, d4:  51, e4:  52, f4:  53,
+  a3:  64, b3:  65, c3:  66, d3:  67, e3:  68, f3:  69,
+  a2:  80, b2:  81, c2:  82, d2:  83, e2:  84, f2:  85,
+  a1:  96, b1:  97, c1:  98, d1:  99, e1: 100, f1: 101,
 };
   
     var ROOKS = {
@@ -1227,15 +1236,29 @@ function generate_fen() {
       return i & 15
     }
   
-    function algebraic(i) {
-      console.log("algebraic runs");
-      console.log("i: " + i)
-      var f = file(i),
-        r = rank(i)
-      console.log("f: " + f)
-      console.log("r: " + r)
-      return 'abcdef'.substring(f, f + 1) + '654321'.substring(r, r + 1)
-    }
+    // function algebraic(i) {
+    //   console.log("algebraic runs");
+    //   console.log("i: " + i)
+    //   var f = file(i),
+    //     r = rank(i)
+    //   console.log("f: " + f)
+    //   console.log("r: " + r)
+    //   return 'abcdef'.substring(f, f + 1) + '654321'.substring(r, r + 1)
+    // }
+
+    //this version gets everything but the last rank
+//     function algebraic(i) {
+//   var f = file(i),
+//     r = rank(i)
+//   // r: 1=rank6, 2=rank5, 3=rank4, 4=rank3, 5=rank2, 6=rank1
+//   return 'abcdef'.substring(f, f + 1) + '765432'.substring(r, r + 1)
+// }
+function algebraic(i) {
+  var f = file(i),
+    r = rank(i)
+  // r: 1=rank6, 2=rank5, 3=rank4, 4=rank3, 5=rank2, 6=rank1
+  return 'abcdef'.substring(f, f + 1) + 'X654321'.substring(r, r + 1)  // Added 'X' at index 0
+}
   
     function swap_color(c) {
       return c === WHITE ? BLACK : WHITE
@@ -1319,23 +1342,40 @@ function generate_fen() {
       ROOK: ROOK,
       QUEEN: QUEEN,
       KING: KING,
+      // SQUARES: (function() {
+      //   /* from the ECMA-262 spec (section 12.6.4):
+      //    * "The mechanics of enumerating the properties ... is
+      //    * implementation dependent"
+      //    * so: for (var sq in SQUARES) { keys.push(sq); } might not be
+      //    * ordered correctly
+      //    */
+      //   var keys = []
+      //   for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
+      //     if (i & 0x88) {
+      //       // initially:
+      //       // i += 3
+      //       i += 9
+      //       continue
+      //     }
+      //     keys.push(algebraic(i))
+      //   }
+      //   return keys
+      // })(),
+      // this version gets everything except the last rank
       SQUARES: (function() {
-        /* from the ECMA-262 spec (section 12.6.4):
-         * "The mechanics of enumerating the properties ... is
-         * implementation dependent"
-         * so: for (var sq in SQUARES) { keys.push(sq); } might not be
-         * ordered correctly
-         */
-        var keys = []
-        for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
-          if (i & 0x88) {
-            i += 3
-            continue
-          }
-          keys.push(algebraic(i))
-        }
-        return keys
-      })(),
+  var keys = []
+  for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
+    if (i & 0x88) {
+      i += 9
+      continue
+    }
+    keys.push(algebraic(i))
+    if (file(i) === 5) {  // Just finished f-file (0-indexed, so f=5)
+      i += 10  // Skip to start of next rank
+    }
+  }
+  return keys
+})(),
       FLAGS: FLAGS,
   
       /***************************************************************************
@@ -1446,6 +1486,7 @@ board: function() {
     if ((i + 1) & 0x88) {
       output.push(row)
       row = []
+      // initially: i += 6
       i += 3  // Changed from 6
     }
   }
