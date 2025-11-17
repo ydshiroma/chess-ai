@@ -44,8 +44,8 @@ var config = {
   onSnapEnd: onSnapEnd,
 };
 var board = Chessboard('myBoard', config);
-console.log("board: " + JSON.stringify(board))
-console.log("game: " + JSON.stringify(game))
+console.log("board (from main): " + JSON.stringify(board))
+console.log("game (from main): " + JSON.stringify(game))
 
 timer = null;
 

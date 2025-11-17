@@ -182,6 +182,10 @@ var SQUARES = {
       }
   
       board = new Array(128)
+      // for (let i = 0; i < 17; i++) {
+      //   board.unshift(null)
+      // }
+      console.log("board (from Chess function): " + board)
       kings = { w: EMPTY, b: EMPTY }
       turn = WHITE
       castling = { w: 0, b: 0 }
@@ -226,7 +230,8 @@ var SQUARES = {
   
       var tokens = fen.split(/\s+/)
       var position = tokens[0]
-      var square = 0
+      // a6 = 16 in SQUARES
+      var square = 16
   
       if (!validate_fen(fen).valid) {
         console.log("fen invalid");
@@ -237,19 +242,19 @@ var SQUARES = {
   
       for (var i = 0; i < position.length; i++) {
         var piece = position.charAt(i)
-        console.log("piece: " + piece)
+        //console.log("piece: " + piece)
   
         if (piece === '/') {
-          square += 4  // Changed from 8
-          console.log("square: " + square);
+          square += 10  // Changed from 4 - skip to next rank (16-wide rows)
+          //console.log("square: " + square);
         } else if (is_digit(piece)) {
           square += parseInt(piece, 10)
-          console.log("square: " + square);
+          //console.log("square: " + square);
         } else {
           var color = piece < 'a' ? WHITE : BLACK
           put({ type: piece.toLowerCase(), color: color }, algebraic(square))
           square++
-          console.log("square: " + square);
+          //console.log("square: " + square);
         }
       }
   
@@ -389,10 +394,13 @@ var SQUARES = {
   
 //TODO: I don't think this is working
 function generate_fen() {
-  console.log("generate_fen runs");
-      var empty = 0
-      var fen = ''
-      let test_list = [20, 21, 22, 23, 24, 25, 30, 31, 32, 33, 34, 35, 40, 41, 42, 43, 44, 45, 50, 51, 52, 53, 54, 55, 60, 61, 62, 63, 64, 65, 70, 71, 72, 73, 74, 75];
+  //console.log("generate_fen runs");
+  var empty = 0
+  var fen = ''
+  console.log("game: " + JSON.stringify(game))
+  console.log("squares: " + JSON.stringify(SQUARES))
+  
+      //let test_list = [20, 21, 22, 23, 24, 25, 30, 31, 32, 33, 34, 35, 40, 41, 42, 43, 44, 45, 50, 51, 52, 53, 54, 55, 60, 61, 62, 63, 64, 65, 70, 71, 72, 73, 74, 75];
 
       // for (let i = 0; i < test_list.length; i++) {
       //   console.log("GENERATE_FEN i: " + i)
@@ -428,37 +436,74 @@ function generate_fen() {
       //   //   i += 3  // Changed from 8
       //   // }
       // }
-      console.log("squares: " + JSON.stringify(SQUARES))
-      for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
-        console.log("GENERATE_FEN i: " + i)
-        if (board[i] == null) {
-          empty++
-        } else {
-          if (empty > 0) {
-            fen += empty
-            empty = 0
-          }
-          var color = board[i].color
-          console.log("color: " + color)
-          var piece = board[i].type
+      //console.log("squares: " + JSON.stringify(SQUARES))
+      // for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
+      //   console.log("GENERATE_FEN i: " + i)
+      //   if (board[i] == null) {
+      //     empty++
+      //   } else {
+      //     if (empty > 0) {
+      //       fen += empty
+      //       empty = 0
+      //     }
+      //     var color = board[i].color
+      //     console.log("color: " + color)
+      //     var piece = board[i].type
   
-          fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
-        }
+      //     fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
+      //   }
   
-        if ((i + 1) & 0x88) {
-          if (empty > 0) {
-            fen += empty
-          }
+      //   if ((i + 1) & 0x88) {
+      //     if (empty > 0) {
+      //       fen += empty
+      //     }
   
-          if (i !== SQUARES.f1) {
-            fen += '/'
-          }
+      //     if (i !== SQUARES.f1) {
+      //       fen += '/'
+      //     }
   
-          empty = 0
-          i += 3  // Changed from 8
-        }
+      //     empty = 0
+      //     i += 3  // Changed from 8
+      //   }
+      // }
+      // console.log("fen produced by generate_fen: " + fen)
+  for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
+    console.log("i: " + i)
+    //console.log("GENERATE_FEN i: " + i + ", board: " + JSON.stringify(board))
+    //console.log("board: " + JSON.stringify(board))
+    //console.log("board[i]: " + JSON.stringify(board[i]))
+    if (board[i] == null) {
+      empty++
+    } else {
+      console.log("board: " + JSON.stringify(board))
+      console.log("board length: " + board.length)
+      console.log("i: " + i + ", board[i]: " + JSON.stringify(board[i]))
+      if (empty > 0) {
+        fen += empty
+        empty = 0
       }
-      console.log("fen produced by generate_fen: " + fen)
+      var color = board[i].color
+      console.log("color: " + color)
+      var piece = board[i].type
+      console.log("piece: " + piece)
+
+      fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
+    }
+
+    // Check if we've finished the current rank (at f-file)
+    if (file(i) === 5) {  // f-file is index 5
+      if (empty > 0) {
+        fen += empty
+      }
+
+      if (i !== SQUARES.f1) {
+        fen += '/'
+      }
+
+      empty = 0
+      i += 10  // Skip to next rank (16-wide rows, 6 squares used, so skip 10)
+    }
+  }
   
       var cflags = ''
       if (castling[WHITE] & BITS.KSIDE_CASTLE) {
@@ -477,6 +522,7 @@ function generate_fen() {
       /* do we have an empty castling flag? */
       cflags = cflags || '-'
       var epflags = ep_square === EMPTY ? '-' : algebraic(ep_square)
+      console.log("fen produced by generate_fen: " + fen)
   
       return [fen, turn, cflags, epflags, half_moves, move_number].join(' ')
     }
@@ -1151,7 +1197,7 @@ function generate_fen() {
   
     //TODO: did I update this correctly?
     function ascii() {
-      console.log("ascii runs");
+      //console.log("ascii runs");
       var s = '   +------------------------+\n'
       for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
         /* display the rank */
@@ -1310,7 +1356,7 @@ function algebraic(i) {
      ****************************************************************************/
     //TODO: could be problematic logic here, but this function doesn't seem to be running
     function perft(depth) {
-      console.log("perft runs");
+      //console.log("perft runs");
       var moves = generate_moves({ legal: false })
       var nodes = 0
       var color = turn
