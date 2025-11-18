@@ -439,6 +439,7 @@ var SQUARES = {
           i += 10  // Skip to next rank (16-wide rows, 6 squares used, so skip 10)
         }
       }
+      return [fen, turn, half_moves, move_number].join(' ')
     }
   
   
