@@ -41,7 +41,7 @@ var Chess = function(fen) {
     var SYMBOLS = 'pnrqkPNRQK'
   
     var DEFAULT_POSITION =
-      'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w - 0 1'
+      'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w 0 1'
     
     // var DEFAULT_POSITION =
     //   'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w KQkq - 0 1'
@@ -119,7 +119,6 @@ var PIECE_OFFSETS = {
       NORMAL: 'n',
       CAPTURE: 'c',
       BIG_PAWN: 'b',
-      EP_CAPTURE: 'e',
       PROMOTION: 'p',
     }
 
@@ -127,7 +126,6 @@ var PIECE_OFFSETS = {
       NORMAL: 1,
       CAPTURE: 2,
       BIG_PAWN: 4,
-      EP_CAPTURE: 8,
       PROMOTION: 16,
     }
   
@@ -174,7 +172,6 @@ var SQUARES = {
     var turn = WHITE
     //TODO: something with this
     // w: 1, b: 1
-    var ep_square = EMPTY
     var half_moves = 0
     var move_number = 1
     var history = []
@@ -202,7 +199,6 @@ var SQUARES = {
       //console.log("board (from Chess function): " + board)
       kings = { w: EMPTY, b: EMPTY }
       turn = WHITE
-      ep_square = EMPTY
       half_moves = 0
       move_number = 1
       history = []
@@ -282,9 +278,12 @@ var SQUARES = {
   
       turn = tokens[1]
   
-      ep_square = tokens[3] === '-' ? EMPTY : SQUARES[tokens[3]]
-      half_moves = parseInt(tokens[4], 10)
-      move_number = parseInt(tokens[5], 10)
+      // changed from 3
+      // but maybe better to remove entirely?
+      //ep_square = tokens[2] === '-' ? EMPTY : SQUARES[tokens[2]]
+      // changed from 4
+      half_moves = parseInt(tokens[2], 10)
+      move_number = parseInt(tokens[3], 10)
   
       update_setup(generate_fen())
   
@@ -315,21 +314,22 @@ var SQUARES = {
         11: 'Illegal en-passant square'
       }
   
-      /* 1st criterion: 5 space-seperated fields? */
+      /* 1st criterion: 4 space-seperated fields? */
+      // remove en passant and castling fields
       var tokens = fen.split(/\s+/)
-      if (tokens.length !== 5) {
+      if (tokens.length !== 4) {
         console.log("error 1");
         return { valid: false, error_number: 1, error: errors[1] }
       }
   
       /* 2nd criterion: move number field is a integer value > 0? */
-      if (isNaN(tokens[4]) || parseInt(tokens[4], 10) <= 0) {
+      if (isNaN(tokens[3]) || parseInt(tokens[3], 10) <= 0) {
         console.log("error 2");
         return { valid: false, error_number: 2, error: errors[2] }
       }
   
       /* 3rd criterion: half move counter is an integer >= 0? */
-      if (isNaN(tokens[3]) || parseInt(tokens[3], 10) < 0) {
+      if (isNaN(tokens[2]) || parseInt(tokens[2], 10) < 0) {
         console.log("error 3");
         return { valid: false, error_number: 3, error: errors[3] }
       }
@@ -439,7 +439,9 @@ var SQUARES = {
           i += 10  // Skip to next rank (16-wide rows, 6 squares used, so skip 10)
         }
       }
-      return [fen, turn, half_moves, move_number].join(' ')
+      fen_final = [fen, turn, half_moves, move_number].join(' ')
+      console.log("fen produced by generate_fen: " + fen_final)
+      return fen_final
     }
   
   
@@ -545,8 +547,6 @@ var SQUARES = {
   
       if (board[to]) {
         move.captured = board[to].type
-      } else if (flags & BITS.EP_CAPTURE) {
-        move.captured = PAWN
       }
       return move
     }
@@ -647,8 +647,6 @@ var SQUARES = {
   
             if (board[square] != null && board[square].color === them) {
               add_move(board, moves, i, square, BITS.CAPTURE)
-            } else if (square === ep_square) {
-              add_move(board, moves, i, ep_square, BITS.EP_CAPTURE)
             }
           }
         } else {
@@ -720,7 +718,7 @@ var SQUARES = {
           output += move.piece.toUpperCase() + disambiguator
         }
   
-        if (move.flags & (BITS.CAPTURE | BITS.EP_CAPTURE)) {
+        if (move.flags & (BITS.CAPTURE)) {
           if (move.piece === PAWN) {
             output += algebraic(move.from)[0]
           }
@@ -896,7 +894,6 @@ var SQUARES = {
         move: move,
         kings: { b: kings.b, w: kings.w },
         turn: turn,
-        ep_square: ep_square,
         half_moves: half_moves,
         move_number: move_number
       })
@@ -910,15 +907,6 @@ var SQUARES = {
       board[move.to] = board[move.from]
       board[move.from] = null
   
-      /* if ep capture, remove the captured pawn */
-      if (move.flags & BITS.EP_CAPTURE) {
-        if (turn === BLACK) {
-          board[move.to - 16] = null
-        } else {
-          board[move.to + 16] = null
-        }
-      }
-  
       /* if pawn promotion, replace with new piece */
       if (move.flags & BITS.PROMOTION) {
         board[move.to] = { type: move.promotion, color: us }
@@ -930,21 +918,10 @@ var SQUARES = {
 
       }
   
-      /* if big pawn move, update the en passant square */
-      if (move.flags & BITS.BIG_PAWN) {
-        if (turn === 'b') {
-          ep_square = move.to - 16
-        } else {
-          ep_square = move.to + 16
-        }
-      } else {
-        ep_square = EMPTY
-      }
-  
       /* reset the 50 move counter if a pawn is moved or a piece is captured */
       if (move.piece === PAWN) {
         half_moves = 0
-      } else if (move.flags & (BITS.CAPTURE | BITS.EP_CAPTURE)) {
+      } else if (move.flags & (BITS.CAPTURE)) {
         half_moves = 0
       } else {
         half_moves++
@@ -965,7 +942,6 @@ var SQUARES = {
       var move = old.move
       kings = old.kings
       turn = old.turn
-      ep_square = old.ep_square
       half_moves = old.half_moves
       move_number = old.move_number
   
@@ -978,14 +954,6 @@ var SQUARES = {
   
       if (move.flags & BITS.CAPTURE) {
         board[move.to] = { type: move.captured, color: them }
-      } else if (move.flags & BITS.EP_CAPTURE) {
-        var index
-        if (us === BLACK) {
-          index = move.to - 16
-        } else {
-          index = move.to + 16
-        }
-        board[index] = { type: PAWN, color: them }
       }
   
       return move
