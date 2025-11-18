@@ -33,7 +33,6 @@ var Chess = function(fen) {
   
     var PAWN = 'p'
     var KNIGHT = 'n'
-    //TODO: delete
     //var BISHOP = 'b'
     var ROOK = 'r'
     var QUEEN = 'q'
@@ -41,7 +40,6 @@ var Chess = function(fen) {
   
     var SYMBOLS = 'pnrqkPNRQK'
   
-    //TODO change this
     var DEFAULT_POSITION =
       'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w KQkq - 0 1'
   
@@ -176,6 +174,7 @@ var SQUARES = {
     var kings = { w: EMPTY, b: EMPTY }
     var turn = WHITE
     //TODO: something with this
+    // w: 1, b: 1
     var castling = { w: 0, b: 0 }
     var ep_square = EMPTY
     var half_moves = 0
@@ -418,7 +417,6 @@ var SQUARES = {
       return { valid: true, error_number: 0, error: errors[0] }
     }
   
-//TODO: I don't think this is working
 function generate_fen() {
   //console.log("generate_fen runs");
   var empty = 0
@@ -663,12 +661,12 @@ function generate_fen() {
         }
   
         if (piece.type === PAWN) {
-          console.log("Generating pawn moves for square", i, algebraic(i));
+          //console.log("Generating pawn moves for square", i, algebraic(i));
           /* single square, non-capturing */
           var square = i + PAWN_OFFSETS[us][0]
-          console.log("Checking single square move to", square, algebraic(square), "0x88 check:", square & 0x88);
+          //console.log("Checking single square move to", square, algebraic(square), "0x88 check:", square & 0x88);
           if (board[square] == null) {
-            console.log("Single square is empty, adding move");
+            //console.log("Single square is empty, adding move");
             add_move(board, moves, i, square, BITS.NORMAL)
   
             /* double square */

@@ -572,30 +572,30 @@ function onDrop(source, target) {
 
   //TODO: comment everything below this line in again when ready to troubleshoot engine
 
-  // globalSum = evaluateBoard(game, move, globalSum, 'b');
-  // updateAdvantage();
+  globalSum = evaluateBoard(game, move, globalSum, 'b');
+  updateAdvantage();
 
-  // // Highlight latest move
-  // $board.find('.' + squareClass).removeClass('highlight-white');
+  // Highlight latest move
+  $board.find('.' + squareClass).removeClass('highlight-white');
 
-  // $board.find('.square-' + move.from).addClass('highlight-white');
-  // squareToHighlight = move.to;
-  // colorToHighlight = 'white';
+  $board.find('.square-' + move.from).addClass('highlight-white');
+  squareToHighlight = move.to;
+  colorToHighlight = 'white';
 
-  // $board
-  //   .find('.square-' + squareToHighlight)
-  //   .addClass('highlight-' + colorToHighlight);
+  $board
+    .find('.square-' + squareToHighlight)
+    .addClass('highlight-' + colorToHighlight);
 
-  // if (!checkStatus('black'));
-  // {
-  //   // Make the best move for black
-  //   window.setTimeout(function () {
-  //     makeBestMove('b');
-  //     window.setTimeout(function () {
-  //       showHint();
-  //     }, 250);
-  //   }, 250);
-  // }
+  if (!checkStatus('black'));
+  {
+    // Make the best move for black
+    window.setTimeout(function () {
+      makeBestMove('b');
+      window.setTimeout(function () {
+        showHint();
+      }, 250);
+    }, 250);
+  }
 }
 
 function onMouseoverSquare(square, piece) {
