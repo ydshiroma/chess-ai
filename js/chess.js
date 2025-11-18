@@ -41,7 +41,10 @@ var Chess = function(fen) {
     var SYMBOLS = 'pnrqkPNRQK'
   
     var DEFAULT_POSITION =
-      'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w KQkq - 0 1'
+      'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w - 0 1'
+    
+    // var DEFAULT_POSITION =
+    //   'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w KQkq - 0 1'
   
     var POSSIBLE_RESULTS = ['1-0', '0-1', '1/2-1/2', '*']
 
@@ -118,8 +121,6 @@ var PIECE_OFFSETS = {
       BIG_PAWN: 'b',
       EP_CAPTURE: 'e',
       PROMOTION: 'p',
-      KSIDE_CASTLE: 'k',
-      QSIDE_CASTLE: 'q'
     }
 
     var BITS = {
@@ -128,8 +129,6 @@ var PIECE_OFFSETS = {
       BIG_PAWN: 4,
       EP_CAPTURE: 8,
       PROMOTION: 16,
-      KSIDE_CASTLE: 32,
-      QSIDE_CASTLE: 64
     }
   
     //changed, then changed again from RANK_1 = 5
@@ -161,12 +160,12 @@ var SQUARES = {
   
     var ROOKS = {
       w: [
-        { square: SQUARES.a1, flag: BITS.QSIDE_CASTLE },
-        { square: SQUARES.f1, flag: BITS.KSIDE_CASTLE }
+        { square: SQUARES.a1 },
+        { square: SQUARES.f1 }
       ],
       b: [
-        { square: SQUARES.a6, flag: BITS.QSIDE_CASTLE },
-        { square: SQUARES.f6, flag: BITS.KSIDE_CASTLE }
+        { square: SQUARES.a6 },
+        { square: SQUARES.f6 }
       ]
     }
   
@@ -175,7 +174,6 @@ var SQUARES = {
     var turn = WHITE
     //TODO: something with this
     // w: 1, b: 1
-    var castling = { w: 0, b: 0 }
     var ep_square = EMPTY
     var half_moves = 0
     var move_number = 1
@@ -204,7 +202,6 @@ var SQUARES = {
       //console.log("board (from Chess function): " + board)
       kings = { w: EMPTY, b: EMPTY }
       turn = WHITE
-      castling = { w: 0, b: 0 }
       ep_square = EMPTY
       half_moves = 0
       move_number = 1
@@ -285,19 +282,6 @@ var SQUARES = {
   
       turn = tokens[1]
   
-      if (tokens[2].indexOf('K') > -1) {
-        castling.w |= BITS.KSIDE_CASTLE
-      }
-      if (tokens[2].indexOf('Q') > -1) {
-        castling.w |= BITS.QSIDE_CASTLE
-      }
-      if (tokens[2].indexOf('k') > -1) {
-        castling.b |= BITS.KSIDE_CASTLE
-      }
-      if (tokens[2].indexOf('q') > -1) {
-        castling.b |= BITS.QSIDE_CASTLE
-      }
-  
       ep_square = tokens[3] === '-' ? EMPTY : SQUARES[tokens[3]]
       half_moves = parseInt(tokens[4], 10)
       move_number = parseInt(tokens[5], 10)
@@ -323,7 +307,6 @@ var SQUARES = {
         2: '6th field (move number) must be a positive integer.',
         3: '5th field (half move counter) must be a non-negative integer.',
         4: '4th field (en-passant square) is invalid.',
-        5: '3rd field (castling availability) is invalid.',
         6: '2nd field (side to move) is invalid.',
         7: "1st field (piece positions) does not contain 8 '/'-delimited rows.",
         8: '1st field (piece positions) is invalid [consecutive numbers].',
@@ -332,36 +315,30 @@ var SQUARES = {
         11: 'Illegal en-passant square'
       }
   
-      /* 1st criterion: 6 space-seperated fields? */
+      /* 1st criterion: 5 space-seperated fields? */
       var tokens = fen.split(/\s+/)
-      if (tokens.length !== 6) {
+      if (tokens.length !== 5) {
         console.log("error 1");
         return { valid: false, error_number: 1, error: errors[1] }
       }
   
       /* 2nd criterion: move number field is a integer value > 0? */
-      if (isNaN(tokens[5]) || parseInt(tokens[5], 10) <= 0) {
+      if (isNaN(tokens[4]) || parseInt(tokens[4], 10) <= 0) {
         console.log("error 2");
         return { valid: false, error_number: 2, error: errors[2] }
       }
   
       /* 3rd criterion: half move counter is an integer >= 0? */
-      if (isNaN(tokens[4]) || parseInt(tokens[4], 10) < 0) {
+      if (isNaN(tokens[3]) || parseInt(tokens[3], 10) < 0) {
         console.log("error 3");
         return { valid: false, error_number: 3, error: errors[3] }
       }
   
       /* 4th criterion: 4th field is a valid e.p.-string? */
-      if (!/^(-|[abcdef][36])$/.test(tokens[3])) {
-        console.log("error 4");
-        return { valid: false, error_number: 4, error: errors[4] }
-      }
-  
-      /* 5th criterion: 3th field is a valid castle-string? */
-      if (!/^(KQ?k?q?|Qk?q?|kq?|q|-)$/.test(tokens[2])) {
-        console.log("error 5");
-        return { valid: false, error_number: 5, error: errors[5] }
-      }
+      // if (!/^(-|[abcdef][36])$/.test(tokens[3])) {
+      //   console.log("error 4");
+      //   return { valid: false, error_number: 4, error: errors[4] }
+      // }
   
       /* 6th criterion: 2nd field is "w" (white) or "b" (black)? */
       if (!/^(w|b)$/.test(tokens[1])) {
@@ -417,72 +394,53 @@ var SQUARES = {
       return { valid: true, error_number: 0, error: errors[0] }
     }
   
-function generate_fen() {
-  //console.log("generate_fen runs");
-  var empty = 0
-  var fen = ''
-  //console.log("game: " + JSON.stringify(game))
-  //console.log("squares: " + JSON.stringify(SQUARES))
-
-  for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
-    //console.log("i: " + i)
-    //console.log("GENERATE_FEN i: " + i + ", board: " + JSON.stringify(board))
-    //console.log("board: " + JSON.stringify(board))
-    //console.log("board[i]: " + JSON.stringify(board[i]))
-    if (board[i] == null) {
-      empty++
-    } else {
-      //console.log("board: " + JSON.stringify(board))
-      //console.log("board length: " + board.length)
-      //console.log("i: " + i + ", board[i]: " + JSON.stringify(board[i]))
-      if (empty > 0) {
-        fen += empty
-        empty = 0
-      }
-      var color = board[i].color
-      //console.log("color: " + color)
-      var piece = board[i].type
-      //console.log("piece: " + piece)
-
-      fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
-    }
-
-    // Check if we've finished the current rank (at f-file)
-    if (file(i) === 5) {  // f-file is index 5
-      if (empty > 0) {
-        fen += empty
-      }
-
-      if (i !== SQUARES.f1) {
-        fen += '/'
-      }
-
-      empty = 0
-      i += 10  // Skip to next rank (16-wide rows, 6 squares used, so skip 10)
-    }
-  }
   
-      var cflags = ''
-      if (castling[WHITE] & BITS.KSIDE_CASTLE) {
-        cflags += 'K'
+    function generate_fen() {
+      console.log("generate_fen runs");
+      var empty = 0
+      var fen = ''
+      //console.log("game: " + JSON.stringify(game))
+      //console.log("squares: " + JSON.stringify(SQUARES))
+
+      for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
+        //console.log("i: " + i)
+        //console.log("GENERATE_FEN i: " + i + ", board: " + JSON.stringify(board))
+        //console.log("board: " + JSON.stringify(board))
+        //console.log("board[i]: " + JSON.stringify(board[i]))
+        if (board[i] == null) {
+          empty++
+        } else {
+          //console.log("board: " + JSON.stringify(board))
+          //console.log("board length: " + board.length)
+          //console.log("i: " + i + ", board[i]: " + JSON.stringify(board[i]))
+          if (empty > 0) {
+            fen += empty
+            empty = 0
+          }
+          var color = board[i].color
+          //console.log("color: " + color)
+          var piece = board[i].type
+          //console.log("piece: " + piece)
+
+          fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
+        }
+
+        // Check if we've finished the current rank (at f-file)
+        if (file(i) === 5) {  // f-file is index 5
+          if (empty > 0) {
+            fen += empty
+          }
+
+          if (i !== SQUARES.f1) {
+            fen += '/'
+          }
+
+          empty = 0
+          i += 10  // Skip to next rank (16-wide rows, 6 squares used, so skip 10)
+        }
       }
-      if (castling[WHITE] & BITS.QSIDE_CASTLE) {
-        cflags += 'Q'
-      }
-      if (castling[BLACK] & BITS.KSIDE_CASTLE) {
-        cflags += 'k'
-      }
-      if (castling[BLACK] & BITS.QSIDE_CASTLE) {
-        cflags += 'q'
-      }
-  
-      /* do we have an empty castling flag? */
-      cflags = cflags || '-'
-      var epflags = ep_square === EMPTY ? '-' : algebraic(ep_square)
-      //console.log("fen produced by generate_fen: " + fen)
-  
-      return [fen, turn, cflags, epflags, half_moves, move_number].join(' ')
     }
+  
   
     function set_header(args) {
       for (var i = 0; i < args.length; i += 2) {
@@ -500,6 +458,7 @@ function generate_fen() {
      * made.
      */
     function update_setup(fen) {
+      console.log("update_setup runs");
       if (history.length > 0) return
   
       if (fen !== DEFAULT_POSITION) {
@@ -717,45 +676,7 @@ function generate_fen() {
           }
         }
       }
-  
-      /* check for castling if: a) we're generating all moves, or b) we're doing
-       * single square move generation on the king's square
-       */
-      //TODO: make castling illegal while still preserving single-square king moves
-      if (!single_square || last_sq === kings[us]) {
-        /* king-side castling */
-        if (castling[us] & BITS.KSIDE_CASTLE) {
-          var castling_from = kings[us]
-          var castling_to = castling_from + 2
-  
-          if (
-            board[castling_from + 1] == null &&
-            board[castling_to] == null &&
-            !attacked(them, kings[us]) &&
-            !attacked(them, castling_from + 1) &&
-            !attacked(them, castling_to)
-          ) {
-            add_move(board, moves, kings[us], castling_to, BITS.KSIDE_CASTLE)
-          }
-        }
-  
-        /* queen-side castling */
-        if (castling[us] & BITS.QSIDE_CASTLE) {
-          var castling_from = kings[us]
-          var castling_to = castling_from - 2
-  
-          if (
-            board[castling_from - 1] == null &&
-            board[castling_from - 2] == null &&
-            board[castling_from - 3] == null &&
-            !attacked(them, kings[us]) &&
-            !attacked(them, castling_from - 1) &&
-            !attacked(them, castling_to)
-          ) {
-            add_move(board, moves, kings[us], castling_to, BITS.QSIDE_CASTLE)
-          }
-        }
-      }
+
   
       /* return all pseudo-legal moves (this includes moves that allow the king
        * to be captured)
@@ -792,12 +713,7 @@ function generate_fen() {
     function move_to_san(move, sloppy) {
       var output = ''
   
-      if (move.flags & BITS.KSIDE_CASTLE) {
-        output = 'O-O'
-      } else if (move.flags & BITS.QSIDE_CASTLE) {
-        output = 'O-O-O'
-      } else {
-        var disambiguator = get_disambiguator(move, sloppy)
+      var disambiguator = get_disambiguator(move, sloppy)
   
         if (move.piece !== PAWN) {
           output += move.piece.toUpperCase() + disambiguator
@@ -815,7 +731,7 @@ function generate_fen() {
         if (move.flags & BITS.PROMOTION) {
           output += '=' + move.promotion.toUpperCase()
         }
-      }
+
   
       make_move(move)
       if (in_check()) {
@@ -979,7 +895,6 @@ function generate_fen() {
         move: move,
         kings: { b: kings.b, w: kings.w },
         turn: turn,
-        castling: { b: castling.b, w: castling.w },
         ep_square: ep_square,
         half_moves: half_moves,
         move_number: move_number
@@ -1011,48 +926,7 @@ function generate_fen() {
       /* if we moved the king */
       if (board[move.to].type === KING) {
         kings[board[move.to].color] = move.to
-  
-        /* if we castled, move the rook next to the king */
-        if (move.flags & BITS.KSIDE_CASTLE) {
-          var castling_to = move.to - 1
-          var castling_from = move.to + 1
-          board[castling_to] = board[castling_from]
-          board[castling_from] = null
-        } else if (move.flags & BITS.QSIDE_CASTLE) {
-          var castling_to = move.to + 1
-          var castling_from = move.to - 2
-          board[castling_to] = board[castling_from]
-          board[castling_from] = null
-        }
-  
-        /* turn off castling */
-        castling[us] = ''
-      }
-  
-      /* turn off castling if we move a rook */
-      if (castling[us]) {
-        for (var i = 0, len = ROOKS[us].length; i < len; i++) {
-          if (
-            move.from === ROOKS[us][i].square &&
-            castling[us] & ROOKS[us][i].flag
-          ) {
-            castling[us] ^= ROOKS[us][i].flag
-            break
-          }
-        }
-      }
-  
-      /* turn off castling if we capture a rook */
-      if (castling[them]) {
-        for (var i = 0, len = ROOKS[them].length; i < len; i++) {
-          if (
-            move.to === ROOKS[them][i].square &&
-            castling[them] & ROOKS[them][i].flag
-          ) {
-            castling[them] ^= ROOKS[them][i].flag
-            break
-          }
-        }
+
       }
   
       /* if big pawn move, update the en passant square */
@@ -1090,7 +964,6 @@ function generate_fen() {
       var move = old.move
       kings = old.kings
       turn = old.turn
-      castling = old.castling
       ep_square = old.ep_square
       half_moves = old.half_moves
       move_number = old.move_number
@@ -1112,20 +985,6 @@ function generate_fen() {
           index = move.to + 16
         }
         board[index] = { type: PAWN, color: them }
-      }
-  
-      if (move.flags & (BITS.KSIDE_CASTLE | BITS.QSIDE_CASTLE)) {
-        var castling_to, castling_from
-        if (move.flags & BITS.KSIDE_CASTLE) {
-          castling_to = move.to + 1
-          castling_from = move.to - 1
-        } else if (move.flags & BITS.QSIDE_CASTLE) {
-          castling_to = move.to - 2
-          castling_from = move.to + 1
-        }
-  
-        board[castling_to] = board[castling_from]
-        board[castling_from] = null
       }
   
       return move
@@ -2046,7 +1905,6 @@ board: function() {
       }
     }
   }
-  
   /* export Chess object if using node or any other CommonJS compatible
    * environment */
   if (typeof exports !== 'undefined') exports.Chess = Chess

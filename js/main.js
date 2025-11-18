@@ -5,7 +5,8 @@
  * Copyright (c) 2020 Zhang Zeyu
  */
 
-const fen = 'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w KQkq - 0 1'
+const fen = 'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w - 0 1'
+//const fen = 'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w KQkq - 0 1'
 
 var STACK_SIZE = 100; // maximum size of undo stack
 
