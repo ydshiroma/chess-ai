@@ -42,10 +42,14 @@ var config = {
   onMouseoutSquare: onMouseoutSquare,
   onMouseoverSquare: onMouseoverSquare,
   onSnapEnd: onSnapEnd,
+  //added this
+  orientation: 'white',
 };
 var board = Chessboard('myBoard', config);
-console.log("board (from main): " + JSON.stringify(board))
-console.log("game (from main): " + JSON.stringify(game))
+console.log("Board orientation:", board.orientation());
+
+//console.log("board (from main): " + JSON.stringify(board))
+//console.log("game (from main): " + JSON.stringify(game))
 
 timer = null;
 
@@ -70,6 +74,7 @@ function evaluateBoard(game, move, prevSum, color) {
   // console.log("color: " + color);
   //console.log("get pieces: " + game.getPieces({ type: 'n', color: 'w' }));
   console.log("board: " + game.board)
+  console.log("Board orientation:", board.orientation());
 
   if (game.in_checkmate()) {
     // Opponent is in checkmate (good for us)
@@ -532,6 +537,9 @@ function greySquare(square) {
 }
 
 function onDragStart(source, piece) {
+  console.log("onDragStart called with source:", source, "piece:", piece);
+  console.log("SQUARES mapping for", source, "is:", game.SQUARES[source]);
+
   // do not pick up pieces if the game is over
   if (game.game_over()) return false;
 
@@ -558,30 +566,32 @@ function onDrop(source, target) {
   // Illegal move
   if (move === null) return 'snapback';
 
-  globalSum = evaluateBoard(game, move, globalSum, 'b');
-  updateAdvantage();
+  //TODO: comment everything below this line in again when ready to troubleshoot engine
 
-  // Highlight latest move
-  $board.find('.' + squareClass).removeClass('highlight-white');
+  // globalSum = evaluateBoard(game, move, globalSum, 'b');
+  // updateAdvantage();
 
-  $board.find('.square-' + move.from).addClass('highlight-white');
-  squareToHighlight = move.to;
-  colorToHighlight = 'white';
+  // // Highlight latest move
+  // $board.find('.' + squareClass).removeClass('highlight-white');
 
-  $board
-    .find('.square-' + squareToHighlight)
-    .addClass('highlight-' + colorToHighlight);
+  // $board.find('.square-' + move.from).addClass('highlight-white');
+  // squareToHighlight = move.to;
+  // colorToHighlight = 'white';
 
-  if (!checkStatus('black'));
-  {
-    // Make the best move for black
-    window.setTimeout(function () {
-      makeBestMove('b');
-      window.setTimeout(function () {
-        showHint();
-      }, 250);
-    }, 250);
-  }
+  // $board
+  //   .find('.square-' + squareToHighlight)
+  //   .addClass('highlight-' + colorToHighlight);
+
+  // if (!checkStatus('black'));
+  // {
+  //   // Make the best move for black
+  //   window.setTimeout(function () {
+  //     makeBestMove('b');
+  //     window.setTimeout(function () {
+  //       showHint();
+  //     }, 250);
+  //   }, 250);
+  // }
 }
 
 function onMouseoverSquare(square, piece) {

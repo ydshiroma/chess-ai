@@ -395,6 +395,7 @@
               r += '<div class="{row}">';
               for (var i = 0; i < 6; i++) {  // Changed from 8
                 var s = n[i] + t;
+                console.log("Rendering square:", s, "at file index", i, "file letter", n[i], "rank", t);
                 (r +=
                   '<div class="{square} ' +
                   H[o] +

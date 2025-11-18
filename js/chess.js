@@ -46,19 +46,32 @@ var Chess = function(fen) {
       'rnkqnr/pppppp/6/6/PPPPPP/RNKQNR w KQkq - 0 1'
   
     var POSSIBLE_RESULTS = ['1-0', '0-1', '1/2-1/2', '*']
-  
-    var PAWN_OFFSETS = {
-      b: [10, 20, 11, 9],   // Changed from [16, 32, 17, 15]
-      w: [-10, -20, -11, -9] // Changed from [-16, -32, -17, -15]
-    }
 
-    var PIECE_OFFSETS = {
-      n: [-12, -21, -19, -8, 12, 21, 19, 8], // Changed from [-18, -33, -31, -14, 18, 33, 31, 14]
-      // b: [-11, -9, 11, 9],  // Changed from [-17, -15, 17, 15] (though bishop is removed)
-      r: [-10, 1, 10, -1],  // Changed from [-16, 1, 16, -1]
-      q: [-11, -10, -9, 1, 11, 10, 9, -1],  // Changed from [-17, -16, -15, 1, 17, 16, 15, -1]
-      k: [-11, -10, -9, 1, 11, 10, 9, -1]   // Changed from [-17, -16, -15, 1, 17, 16, 15, -1]
-    }
+    var PAWN_OFFSETS = {
+  b: [16, 32, 17, 15],   // Forward 1 rank, forward 2 ranks, diagonal captures
+  w: [-16, -32, -17, -15]
+}
+
+var PIECE_OFFSETS = {
+  n: [-18, -33, -31, -14, 18, 33, 31, 14],  // Knight moves
+  b: [-17, -15, 17, 15],  // Bishop (diagonal)
+  r: [-16, 1, 16, -1],    // Rook (straight)
+  q: [-17, -16, -15, 1, 17, 16, 15, -1],  // Queen (all directions)
+  k: [-17, -16, -15, 1, 17, 16, 15, -1]   // King (all directions, one square)
+}
+  
+    // var PAWN_OFFSETS = {
+    //   b: [10, 20, 11, 9],   // Changed from [16, 32, 17, 15]
+    //   w: [-10, -20, -11, -9] // Changed from [-16, -32, -17, -15]
+    // }
+
+    // var PIECE_OFFSETS = {
+    //   n: [-12, -21, -19, -8, 12, 21, 19, 8], // Changed from [-18, -33, -31, -14, 18, 33, 31, 14]
+    //   // b: [-11, -9, 11, 9],  // Changed from [-17, -15, 17, 15] (though bishop is removed)
+    //   r: [-10, 1, 10, -1],  // Changed from [-16, 1, 16, -1]
+    //   q: [-11, -10, -9, 1, 11, 10, 9, -1],  // Changed from [-17, -16, -15, 1, 17, 16, 15, -1]
+    //   k: [-11, -10, -9, 1, 11, 10, 9, -1]   // Changed from [-17, -16, -15, 1, 17, 16, 15, -1]
+    // }
 
     var ATTACKS = [
       20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0, 20, 0,
@@ -93,8 +106,8 @@ var Chess = function(fen) {
     ];
 
     //TODO: what does this do? was it right to remove the bishop?
-    var SHIFTS = { p: 0, n: 1, r: 2, q: 3, k: 4 }
-    //var SHIFTS = { p: 0, n: 1, b: 2, r: 3, q: 4, k: 5 }
+    //var SHIFTS = { p: 0, n: 1, r: 2, q: 3, k: 4 }
+    var SHIFTS = { p: 0, n: 1, b: 2, r: 3, q: 4, k: 5 }
 
     var FLAGS = {
       NORMAL: 'n',
@@ -116,13 +129,13 @@ var Chess = function(fen) {
       QSIDE_CASTLE: 64
     }
   
-    //TODO: change this
-    var RANK_1 = 5
-    var RANK_2 = 4
-    var RANK_3 = 3
-    var RANK_4 = 2
-    var RANK_5 = 1
-    var RANK_6 = 0
+    //changed, then changed again from RANK_1 = 5
+    var RANK_1 = 6
+    var RANK_2 = 5
+    var RANK_3 = 4
+    var RANK_4 = 3
+    var RANK_5 = 2
+    var RANK_6 = 1
   
     // prettier-ignore
 //     var SQUARES = {
@@ -154,7 +167,6 @@ var SQUARES = {
       ]
     }
   
-    //TODO: change board size here
     var board = new Array(128)
     var kings = { w: EMPTY, b: EMPTY }
     var turn = WHITE
@@ -185,7 +197,7 @@ var SQUARES = {
       // for (let i = 0; i < 17; i++) {
       //   board.unshift(null)
       // }
-      console.log("board (from Chess function): " + board)
+      //console.log("board (from Chess function): " + board)
       kings = { w: EMPTY, b: EMPTY }
       turn = WHITE
       castling = { w: 0, b: 0 }
@@ -224,6 +236,7 @@ var SQUARES = {
     //TODO: is this the bad square logic?
     function load(fen, keep_headers) {
       console.log("load function runs");
+      console.log("Loading FEN:", fen);
       if (typeof keep_headers === 'undefined') {
         keep_headers = false
       }
@@ -242,16 +255,24 @@ var SQUARES = {
   
       for (var i = 0; i < position.length; i++) {
         var piece = position.charAt(i)
+        console.log("Processing char:", piece, "at square index:", square, "which is:", algebraic(square));
         //console.log("piece: " + piece)
   
         if (piece === '/') {
-          square += 10  // Changed from 4 - skip to next rank (16-wide rows)
+          // Move to start of next rank
+          // Current rank start is: (Math.floor((square - 16) / 16) * 16) + 16
+          // Next rank start is that + 16
+          square = Math.floor((square - 16) / 16) * 16 + 32;
+          console.log("After slash, square is now:", square, algebraic(square));
+          //square += 10  // Changed from 4 - skip to next rank (16-wide rows)
           //console.log("square: " + square);
         } else if (is_digit(piece)) {
           square += parseInt(piece, 10)
+          console.log("After digit, square is now:", square, algebraic(square));
           //console.log("square: " + square);
         } else {
           var color = piece < 'a' ? WHITE : BLACK
+          console.log("Placing", piece, "at index", square, "which is", algebraic(square));
           put({ type: piece.toLowerCase(), color: color }, algebraic(square))
           square++
           //console.log("square: " + square);
@@ -288,7 +309,7 @@ var SQUARES = {
      * we're at it
      */
     function validate_fen(fen) {
-      console.log("validate_fen runs")
+      //console.log("validate_fen runs")
 
       //TODO: fix validation and get rid of this line (returns valid no matter what is happening)
       //return { valid: true, error_number: 0, error: null }
@@ -397,95 +418,28 @@ function generate_fen() {
   //console.log("generate_fen runs");
   var empty = 0
   var fen = ''
-  console.log("game: " + JSON.stringify(game))
-  console.log("squares: " + JSON.stringify(SQUARES))
-  
-      //let test_list = [20, 21, 22, 23, 24, 25, 30, 31, 32, 33, 34, 35, 40, 41, 42, 43, 44, 45, 50, 51, 52, 53, 54, 55, 60, 61, 62, 63, 64, 65, 70, 71, 72, 73, 74, 75];
+  //console.log("game: " + JSON.stringify(game))
+  //console.log("squares: " + JSON.stringify(SQUARES))
 
-      // for (let i = 0; i < test_list.length; i++) {
-      //   console.log("GENERATE_FEN i: " + i)
-      //   console.log("i in list: " + test_list[i])
-      //   let square_num = test_list[i];
-      //   console.log("board[20]: " + board[20])
-      //   console.log("board[square_num]: " + board[square_num])
-      //   console.log("board[square_num]: " + board[square_num].color)
-      //   console.log("square on board: " + board.test_list[i])
-      //   if (board[test_list[i]] == null) {
-      //     empty++
-      //   } else {
-      //     if (empty > 0) {
-      //       fen += empty
-      //       empty = 0
-      //     }
-      //     var color = board[test_list[i]].color
-      //     var piece = board[test_list[i]].type
-  
-      //     fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
-      //   }
-  
-      //   // if ((i + 1) & 0x88) {
-      //   //   if (empty > 0) {
-      //   //     fen += empty
-      //   //   }
-  
-      //   //   if (i !== SQUARES.f1) {
-      //   //     fen += '/'
-      //   //   }
-  
-      //   //   empty = 0
-      //   //   i += 3  // Changed from 8
-      //   // }
-      // }
-      //console.log("squares: " + JSON.stringify(SQUARES))
-      // for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
-      //   console.log("GENERATE_FEN i: " + i)
-      //   if (board[i] == null) {
-      //     empty++
-      //   } else {
-      //     if (empty > 0) {
-      //       fen += empty
-      //       empty = 0
-      //     }
-      //     var color = board[i].color
-      //     console.log("color: " + color)
-      //     var piece = board[i].type
-  
-      //     fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
-      //   }
-  
-      //   if ((i + 1) & 0x88) {
-      //     if (empty > 0) {
-      //       fen += empty
-      //     }
-  
-      //     if (i !== SQUARES.f1) {
-      //       fen += '/'
-      //     }
-  
-      //     empty = 0
-      //     i += 3  // Changed from 8
-      //   }
-      // }
-      // console.log("fen produced by generate_fen: " + fen)
   for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
-    console.log("i: " + i)
+    //console.log("i: " + i)
     //console.log("GENERATE_FEN i: " + i + ", board: " + JSON.stringify(board))
     //console.log("board: " + JSON.stringify(board))
     //console.log("board[i]: " + JSON.stringify(board[i]))
     if (board[i] == null) {
       empty++
     } else {
-      console.log("board: " + JSON.stringify(board))
-      console.log("board length: " + board.length)
-      console.log("i: " + i + ", board[i]: " + JSON.stringify(board[i]))
+      //console.log("board: " + JSON.stringify(board))
+      //console.log("board length: " + board.length)
+      //console.log("i: " + i + ", board[i]: " + JSON.stringify(board[i]))
       if (empty > 0) {
         fen += empty
         empty = 0
       }
       var color = board[i].color
-      console.log("color: " + color)
+      //console.log("color: " + color)
       var piece = board[i].type
-      console.log("piece: " + piece)
+      //console.log("piece: " + piece)
 
       fen += color === WHITE ? piece.toUpperCase() : piece.toLowerCase()
     }
@@ -522,7 +476,7 @@ function generate_fen() {
       /* do we have an empty castling flag? */
       cflags = cflags || '-'
       var epflags = ep_square === EMPTY ? '-' : algebraic(ep_square)
-      console.log("fen produced by generate_fen: " + fen)
+      //console.log("fen produced by generate_fen: " + fen)
   
       return [fen, turn, cflags, epflags, half_moves, move_number].join(' ')
     }
@@ -560,18 +514,22 @@ function generate_fen() {
     }
   
     function put(piece, square) {
+      console.log("put function runs")
       /* check for valid piece object */
       if (!('type' in piece && 'color' in piece)) {
+        console.log("check for invalid piece object fails")
         return false
       }
   
       /* check for piece */
       if (SYMBOLS.indexOf(piece.type.toLowerCase()) === -1) {
+        console.log("check for piece fails")
         return false
       }
   
       /* check for valid square */
       if (!(square in SQUARES)) {
+        console.log("check for valid square fails")
         return false
       }
   
@@ -591,7 +549,7 @@ function generate_fen() {
       }
   
       update_setup(generate_fen())
-      console.log("fen: " + fen)
+      console.log("fen (from 'put'): " + fen)
   
       return true
     }
@@ -631,6 +589,7 @@ function generate_fen() {
     }
   
     function generate_moves(options) {
+      console.log("generate moves runs")
       function add_move(board, moves, from, to, flags) {
         /* if pawn promotion */
         if (
@@ -663,11 +622,17 @@ function generate_fen() {
   
       /* are we generating moves for a single square? */
       if (typeof options !== 'undefined' && 'square' in options) {
+        console.log("Generating moves for specific square:", options.square);
+        console.log("SQUARES[options.square] =", SQUARES[options.square]);
+        console.log("Check result:", options.square in SQUARES);
+        
         if (options.square in SQUARES) {
           first_sq = last_sq = SQUARES[options.square]
           single_square = true
+          console.log("Set first_sq and last_sq to:", first_sq);
         } else {
           /* invalid square */
+          console.log("Square not found in SQUARES, returning empty array");
           return []
         }
       }
@@ -675,9 +640,16 @@ function generate_fen() {
       for (var i = first_sq; i <= last_sq; i++) {
         /* did we run off the end of the board */
         if (i & 0x88) {
-          i += 3
+          //Changed from 3 - for 16-wide rows: (16 - 6 - 1) = 9
+          i += 9
           continue
         }
+
+        // Additional check: skip if file > 5 (positions 6-15 in each rank)
+  if (file(i) > 5) {
+    i += 10  // Skip to next rank
+    continue
+  }
   
         var piece = board[i]
         if (piece == null || piece.color !== us) {
@@ -685,14 +657,19 @@ function generate_fen() {
         }
   
         if (piece.type === PAWN) {
+          console.log("Generating pawn moves for square", i, algebraic(i));
           /* single square, non-capturing */
           var square = i + PAWN_OFFSETS[us][0]
+          console.log("Checking single square move to", square, algebraic(square), "0x88 check:", square & 0x88);
           if (board[square] == null) {
+            console.log("Single square is empty, adding move");
             add_move(board, moves, i, square, BITS.NORMAL)
   
             /* double square */
             var square = i + PAWN_OFFSETS[us][1]
+            console.log("Checking double square move to", square, algebraic(square));
             if (second_rank[us] === rank(i) && board[square] == null) {
+              console.log("Double square is valid, adding move");
               add_move(board, moves, i, square, BITS.BIG_PAWN)
             }
           }
@@ -716,6 +693,9 @@ function generate_fen() {
             while (true) {
               square += offset
               if (square & 0x88) break
+
+               // Add this check for 6x6 board
+              if (file(square) > 5) break
   
               if (board[square] == null) {
                 add_move(board, moves, i, square, BITS.NORMAL)
@@ -774,6 +754,7 @@ function generate_fen() {
        * to be captured)
        */
       if (!legal) {
+        console.log("moves: " + moves)
         return moves
       }
   
@@ -787,6 +768,7 @@ function generate_fen() {
         undo_move()
       }
   
+      console.log("legal_moves: " + JSON.stringify(legal_moves))
       return legal_moves
     }
   
@@ -1408,20 +1390,23 @@ function algebraic(i) {
       //   return keys
       // })(),
       // this version gets everything except the last rank
-      SQUARES: (function() {
-  var keys = []
-  for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
-    if (i & 0x88) {
-      i += 9
-      continue
-    }
-    keys.push(algebraic(i))
-    if (file(i) === 5) {  // Just finished f-file (0-indexed, so f=5)
-      i += 10  // Skip to start of next rank
-    }
-  }
-  return keys
-})(),
+
+      //TODO: this version was working, maybe? could try commenting back in
+      SQUARES: SQUARES,
+      //       SQUARES: (function() {
+//   var keys = []
+//   for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
+//     if (i & 0x88) {
+//       i += 9
+//       continue
+//     }
+//     keys.push(algebraic(i))
+//     if (file(i) === 5) {  // Just finished f-file (0-indexed, so f=5)
+//       i += 10  // Skip to start of next rank
+//     }
+//   }
+//   return keys
+// })(),
       FLAGS: FLAGS,
   
       /***************************************************************************
@@ -1519,7 +1504,7 @@ function algebraic(i) {
       // initially i += 8
       // tried with 3, 4, 6
 board: function() {
-  console.log("board function runs");
+  //console.log("board function runs");
   var output = [],
     row = []
 
