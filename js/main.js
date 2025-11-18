@@ -11,7 +11,7 @@ var STACK_SIZE = 100; // maximum size of undo stack
 
 var board = null;
 var $board = $('#myBoard');
-console.log("$board: " + JSON.stringify($board))
+//console.log("$board: " + JSON.stringify($board))
 // var game = new Chess();
 
 // validation still runs even with skipValidation flag
@@ -46,7 +46,7 @@ var config = {
   orientation: 'white',
 };
 var board = Chessboard('myBoard', config);
-console.log("Board orientation:", board.orientation());
+//console.log("Board orientation:", board.orientation());
 
 //console.log("board (from main): " + JSON.stringify(board))
 //console.log("game (from main): " + JSON.stringify(game))
@@ -68,13 +68,13 @@ var weights = { p: 100, n: 300, b: 300, r: 500, q: 900, k: 2000, k_e: 2000 };
  */
 //TODO: instead of using prevSum, just add up value of all pieces on the board?
 function evaluateBoard(game, move, prevSum, color) {
-  console.log("game: " + JSON.stringify(game));
-  console.log("move: " + JSON.stringify(move));
+  //console.log("game: " + JSON.stringify(game));
+  //console.log("move: " + JSON.stringify(move));
   // console.log("prevSum: " + prevSum);
   // console.log("color: " + color);
   //console.log("get pieces: " + game.getPieces({ type: 'n', color: 'w' }));
-  console.log("board: " + game.board)
-  console.log("Board orientation:", board.orientation());
+  //console.log("board: " + game.board)
+  //console.log("Board orientation:", board.orientation());
 
   if (game.in_checkmate()) {
     // Opponent is in checkmate (good for us)
@@ -160,10 +160,10 @@ function evaluateBoard(game, move, prevSum, color) {
   const value_one_move = 100 / 8;
   //TODO: can make this run faster by using game.ugly_moves()
   const available_moves = game.ugly_moves().length;
-  console.log("available moves: " + available_moves)
+  //console.log("available moves: " + available_moves)
   const num_to_add = value_one_move * available_moves;
   currSum += num_to_add;
-  console.log("current sum: " + currSum);
+  //console.log("current sum: " + currSum);
   return currSum;
 }
 
@@ -553,6 +553,7 @@ function onDragStart(source, piece) {
 }
 
 function onDrop(source, target) {
+  console.log("onDrop runs");
   undo_stack = [];
   removeGreySquares();
 
@@ -564,7 +565,10 @@ function onDrop(source, target) {
   });
 
   // Illegal move
-  if (move === null) return 'snapback';
+  if (move === null) {
+    console.log("illegal move: " + move + " from source: " + source + " with target: " + target);
+    return 'snapback';
+  }
 
   //TODO: comment everything below this line in again when ready to troubleshoot engine
 

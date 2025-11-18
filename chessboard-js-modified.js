@@ -242,7 +242,7 @@
     (H.square = "square-55d63"),
     (H.white = "white-1e1d7"),
     (window.Chessboard = function (e, f) {
-        console.log("window.chessboard runs")
+        //console.log("window.chessboard runs")
       if (
         !(function () {
           if (se()) return !0;
@@ -395,7 +395,7 @@
               r += '<div class="{row}">';
               for (var i = 0; i < 6; i++) {  // Changed from 8
                 var s = n[i] + t;
-                console.log("Rendering square:", s, "at file index", i, "file letter", n[i], "rank", t);
+                //console.log("Rendering square:", s, "at file index", i, "file letter", n[i], "rank", t);
                 (r +=
                   '<div class="{square} ' +
                   H[o] +

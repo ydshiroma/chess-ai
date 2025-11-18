@@ -47,9 +47,14 @@ var Chess = function(fen) {
   
     var POSSIBLE_RESULTS = ['1-0', '0-1', '1/2-1/2', '*']
 
-    var PAWN_OFFSETS = {
-  b: [16, 32, 17, 15],   // Forward 1 rank, forward 2 ranks, diagonal captures
-  w: [-16, -32, -17, -15]
+      var PAWN_OFFSETS = {
+  b: [16, 17, 15],   // Forward 1 rank, diagonal captures
+  w: [-16, -17, -15]
+
+  //old version- allowed pawns to move up two
+  //   var PAWN_OFFSETS = {
+  // b: [16, 32, 17, 15],   // Forward 1 rank, forward 2 ranks, diagonal captures
+  // w: [-16, -32, -17, -15]
 }
 
 var PIECE_OFFSETS = {
@@ -235,8 +240,8 @@ var SQUARES = {
   
     //TODO: is this the bad square logic?
     function load(fen, keep_headers) {
-      console.log("load function runs");
-      console.log("Loading FEN:", fen);
+      //console.log("load function runs");
+      //console.log("Loading FEN:", fen);
       if (typeof keep_headers === 'undefined') {
         keep_headers = false
       }
@@ -255,7 +260,7 @@ var SQUARES = {
   
       for (var i = 0; i < position.length; i++) {
         var piece = position.charAt(i)
-        console.log("Processing char:", piece, "at square index:", square, "which is:", algebraic(square));
+        //console.log("Processing char:", piece, "at square index:", square, "which is:", algebraic(square));
         //console.log("piece: " + piece)
   
         if (piece === '/') {
@@ -263,16 +268,16 @@ var SQUARES = {
           // Current rank start is: (Math.floor((square - 16) / 16) * 16) + 16
           // Next rank start is that + 16
           square = Math.floor((square - 16) / 16) * 16 + 32;
-          console.log("After slash, square is now:", square, algebraic(square));
+          //console.log("After slash, square is now:", square, algebraic(square));
           //square += 10  // Changed from 4 - skip to next rank (16-wide rows)
           //console.log("square: " + square);
         } else if (is_digit(piece)) {
           square += parseInt(piece, 10)
-          console.log("After digit, square is now:", square, algebraic(square));
+          //console.log("After digit, square is now:", square, algebraic(square));
           //console.log("square: " + square);
         } else {
           var color = piece < 'a' ? WHITE : BLACK
-          console.log("Placing", piece, "at index", square, "which is", algebraic(square));
+          //console.log("Placing", piece, "at index", square, "which is", algebraic(square));
           put({ type: piece.toLowerCase(), color: color }, algebraic(square))
           square++
           //console.log("square: " + square);
@@ -514,7 +519,7 @@ function generate_fen() {
     }
   
     function put(piece, square) {
-      console.log("put function runs")
+      //console.log("put function runs")
       /* check for valid piece object */
       if (!('type' in piece && 'color' in piece)) {
         console.log("check for invalid piece object fails")
@@ -549,7 +554,7 @@ function generate_fen() {
       }
   
       update_setup(generate_fen())
-      console.log("fen (from 'put'): " + fen)
+      //console.log("fen (from 'put'): " + fen)
   
       return true
     }
@@ -589,7 +594,7 @@ function generate_fen() {
     }
   
     function generate_moves(options) {
-      console.log("generate moves runs")
+      //console.log("generate moves runs")
       function add_move(board, moves, from, to, flags) {
         /* if pawn promotion */
         if (
@@ -622,17 +627,17 @@ function generate_fen() {
   
       /* are we generating moves for a single square? */
       if (typeof options !== 'undefined' && 'square' in options) {
-        console.log("Generating moves for specific square:", options.square);
-        console.log("SQUARES[options.square] =", SQUARES[options.square]);
-        console.log("Check result:", options.square in SQUARES);
+        //console.log("Generating moves for specific square:", options.square);
+        //console.log("SQUARES[options.square] =", SQUARES[options.square]);
+        //console.log("Check result:", options.square in SQUARES);
         
         if (options.square in SQUARES) {
           first_sq = last_sq = SQUARES[options.square]
           single_square = true
-          console.log("Set first_sq and last_sq to:", first_sq);
+          //console.log("Set first_sq and last_sq to:", first_sq);
         } else {
           /* invalid square */
-          console.log("Square not found in SQUARES, returning empty array");
+          //console.log("Square not found in SQUARES, returning empty array");
           return []
         }
       }
@@ -646,10 +651,11 @@ function generate_fen() {
         }
 
         // Additional check: skip if file > 5 (positions 6-15 in each rank)
-  if (file(i) > 5) {
-    i += 10  // Skip to next rank
-    continue
-  }
+        if (file(i) > 5) {
+          // changed from 10
+          i += 9  // Skip to next rank
+          continue
+        }
   
         var piece = board[i]
         if (piece == null || piece.color !== us) {
@@ -666,15 +672,16 @@ function generate_fen() {
             add_move(board, moves, i, square, BITS.NORMAL)
   
             /* double square */
-            var square = i + PAWN_OFFSETS[us][1]
-            console.log("Checking double square move to", square, algebraic(square));
-            if (second_rank[us] === rank(i) && board[square] == null) {
-              console.log("Double square is valid, adding move");
-              add_move(board, moves, i, square, BITS.BIG_PAWN)
-            }
+            // var square = i + PAWN_OFFSETS[us][1]
+            // //console.log("Checking double square move to", square, algebraic(square));
+            // if (second_rank[us] === rank(i) && board[square] == null) {
+            //   //console.log("Double square is valid, adding move");
+            //   add_move(board, moves, i, square, BITS.BIG_PAWN)
+            // }
           }
   
           /* pawn captures */
+          //TODO: do I need to change this to account for changed offsets?
           for (j = 2; j < 4; j++) {
             var square = i + PAWN_OFFSETS[us][j]
             if (square & 0x88) continue
@@ -754,7 +761,7 @@ function generate_fen() {
        * to be captured)
        */
       if (!legal) {
-        console.log("moves: " + moves)
+        //console.log("moves: " + moves)
         return moves
       }
   
@@ -768,7 +775,7 @@ function generate_fen() {
         undo_move()
       }
   
-      console.log("legal_moves: " + JSON.stringify(legal_moves))
+      //console.log("legal_moves: " + JSON.stringify(legal_moves))
       return legal_moves
     }
   
