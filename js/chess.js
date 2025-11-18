@@ -592,7 +592,7 @@ function generate_fen() {
     }
   
     function generate_moves(options) {
-      //console.log("generate moves runs")
+      console.log("generate moves runs")
       function add_move(board, moves, from, to, flags) {
         /* if pawn promotion */
         if (
@@ -680,6 +680,7 @@ function generate_fen() {
   
           /* pawn captures */
           //TODO: do I need to change this to account for changed offsets?
+          // originally: j = 2, j < 4
           for (j = 2; j < 4; j++) {
             var square = i + PAWN_OFFSETS[us][j]
             if (square & 0x88) continue
@@ -720,6 +721,7 @@ function generate_fen() {
       /* check for castling if: a) we're generating all moves, or b) we're doing
        * single square move generation on the king's square
        */
+      //TODO: make castling illegal while still preserving single-square king moves
       if (!single_square || last_sq === kings[us]) {
         /* king-side castling */
         if (castling[us] & BITS.KSIDE_CASTLE) {
@@ -759,7 +761,7 @@ function generate_fen() {
        * to be captured)
        */
       if (!legal) {
-        //console.log("moves: " + moves)
+        console.log("moves (!legal): " + moves)
         return moves
       }
   
@@ -773,7 +775,7 @@ function generate_fen() {
         undo_move()
       }
   
-      //console.log("legal_moves: " + JSON.stringify(legal_moves))
+      console.log("legal_moves: " + JSON.stringify(legal_moves))
       return legal_moves
     }
   
