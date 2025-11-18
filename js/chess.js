@@ -79,37 +79,41 @@ var PIECE_OFFSETS = {
     //   k: [-11, -10, -9, 1, 11, 10, 9, -1]   // Changed from [-17, -16, -15, 1, 17, 16, 15, -1]
     // }
 
-    var ATTACKS = [
-      20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0, 20, 0,
-      0,20, 0, 0, 0, 0, 24,  0, 0, 0, 0,20, 0, 0,
-      0, 0,20, 0, 0, 0, 24,  0, 0, 0,20, 0, 0, 0,
-      0, 0, 0,20, 0, 2, 24,  2,20, 0, 0, 0, 0, 0,
-      0, 0, 0, 0,20, 2, 24,  2,20, 0, 0, 0, 0, 0,
-      0, 0, 0, 0, 2,53, 56, 53, 2, 0, 0, 0, 0, 0,
-      24,24,24,24,24,24, 0, 56,24,24,24,24,24, 0,
-      0, 0, 0, 0, 2,53, 56, 53, 2, 0, 0, 0, 0, 0,
-      0, 0, 0, 0,20, 2, 24,  2,20, 0, 0, 0, 0, 0,
-      0, 0, 0,20, 0, 2, 24,  2,20, 0, 0, 0, 0, 0,
-      0, 0,20, 0, 0, 0, 24,  0, 0, 0,20, 0, 0, 0,
-      0,20, 0, 0, 0, 0, 24,  0, 0, 0, 0,20, 0, 0,
-      20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0,20
-    ];
+var ATTACKS = [
+  20, 0, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0, 0,20, 0,
+  0,20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0,20, 0, 0,
+  0, 0,20, 0, 0, 0, 0, 24,  0, 0, 0, 0,20, 0, 0, 0,
+  0, 0, 0,20, 0, 0, 0, 24,  0, 0, 0,20, 0, 0, 0, 0,
+  0, 0, 0, 0,20, 0, 0, 24,  0, 0,20, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0,20, 2, 24,  2,20, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0, 2,53, 56, 53, 2, 0, 0, 0, 0, 0, 0,
+  24,24,24,24,24,24,56,  0, 56,24,24,24,24,24,24, 0,
+  0, 0, 0, 0, 0, 2,53, 56, 53, 2, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0, 0,20, 2, 24,  2,20, 0, 0, 0, 0, 0, 0,
+  0, 0, 0, 0,20, 0, 0, 24,  0, 0,20, 0, 0, 0, 0, 0,
+  0, 0, 0,20, 0, 0, 0, 24,  0, 0, 0,20, 0, 0, 0, 0,
+  0, 0,20, 0, 0, 0, 0, 24,  0, 0, 0, 0,20, 0, 0, 0,
+  0,20, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0,20, 0, 0,
+  20, 0, 0, 0, 0, 0, 0, 24,  0, 0, 0, 0, 0, 0,20
+];
 
-    var RAYS = [
-      11,  0,  0,  0,  0,  0, 10,  0,  0,  0,  0,  0, 9, 0,
-        0, 11,  0,  0,  0,  0, 10,  0,  0,  0,  0, 9,  0, 0,
-        0,  0, 11,  0,  0,  0, 10,  0,  0,  0, 9,  0,  0, 0,
-        0,  0,  0, 11,  0,  0, 10,  0,  0, 9,  0,  0,  0, 0,
-        0,  0,  0,  0, 11,  0, 10,  0, 9,  0,  0,  0,  0, 0,
-        0,  0,  0,  0,  0, 11, 10, 9,  0,  0,  0,  0,  0, 0,
-        1,  1,  1,  1,  1,  1,  0, -1, -1, -1, -1, -1, -1, 0,
-        0,  0,  0,  0,  0,-9,-10,-11,  0,  0,  0,  0,  0, 0,
-        0,  0,  0,  0,-9,  0,-10,  0,-11,  0,  0,  0,  0, 0,
-        0,  0,  0,-9,  0,  0,-10,  0,  0,-11,  0,  0,  0, 0,
-        0,  0,-9,  0,  0,  0,-10,  0,  0,  0,-11,  0,  0, 0,
-        0,-9,  0,  0,  0,  0,-10,  0,  0,  0,  0,-11,  0, 0,
-      -9,  0,  0,  0,  0,  0,-10,  0,  0,  0,  0,  0,-11
-    ];
+var RAYS = [
+  17,  0,  0,  0,  0,  0,  0, 16,  0,  0,  0,  0,  0,  0, 15, 0,
+    0, 17,  0,  0,  0,  0,  0, 16,  0,  0,  0,  0,  0, 15,  0, 0,
+    0,  0, 17,  0,  0,  0,  0, 16,  0,  0,  0,  0, 15,  0,  0, 0,
+    0,  0,  0, 17,  0,  0,  0, 16,  0,  0,  0, 15,  0,  0,  0, 0,
+    0,  0,  0,  0, 17,  0,  0, 16,  0,  0, 15,  0,  0,  0,  0, 0,
+    0,  0,  0,  0,  0, 17,  0, 16,  0, 15,  0,  0,  0,  0,  0, 0,
+    0,  0,  0,  0,  0,  0, 17, 16, 15,  0,  0,  0,  0,  0,  0, 0,
+    1,  1,  1,  1,  1,  1,  1,  0, -1, -1,  -1,-1, -1, -1, -1, 0,
+    0,  0,  0,  0,  0,  0,-15,-16,-17,  0,  0,  0,  0,  0,  0, 0,
+    0,  0,  0,  0,  0,-15,  0,-16,  0,-17,  0,  0,  0,  0,  0, 0,
+    0,  0,  0,  0,-15,  0,  0,-16,  0,  0,-17,  0,  0,  0,  0, 0,
+    0,  0,  0,-15,  0,  0,  0,-16,  0,  0,  0,-17,  0,  0,  0, 0,
+    0,  0,-15,  0,  0,  0,  0,-16,  0,  0,  0,  0,-17,  0,  0, 0,
+    0,-15,  0,  0,  0,  0,  0,-16,  0,  0,  0,  0,  0,-17,  0, 0,
+  -15,  0,  0,  0,  0,  0,  0,-16,  0,  0,  0,  0,  0,  0,-17
+];
 
     //TODO: what does this do? was it right to remove the bishop?
     //var SHIFTS = { p: 0, n: 1, r: 2, q: 3, k: 4 }
@@ -396,7 +400,7 @@ var SQUARES = {
   
   
     function generate_fen() {
-      console.log("generate_fen runs");
+      //console.log("generate_fen runs");
       var empty = 0
       var fen = ''
       //console.log("game: " + JSON.stringify(game))
@@ -440,7 +444,7 @@ var SQUARES = {
         }
       }
       fen_final = [fen, turn, half_moves, move_number].join(' ')
-      console.log("fen produced by generate_fen: " + fen_final)
+      //console.log("fen produced by generate_fen: " + fen_final)
       return fen_final
     }
   
@@ -461,7 +465,7 @@ var SQUARES = {
      * made.
      */
     function update_setup(fen) {
-      console.log("update_setup runs");
+      //console.log("update_setup runs");
       if (history.length > 0) return
   
       if (fen !== DEFAULT_POSITION) {
@@ -552,7 +556,7 @@ var SQUARES = {
     }
   
     function generate_moves(options) {
-      console.log("generate moves runs")
+      //console.log("generate moves runs")
       function add_move(board, moves, from, to, flags) {
         /* if pawn promotion */
         if (
@@ -639,16 +643,24 @@ var SQUARES = {
           }
   
           /* pawn captures */
-          //TODO: do I need to change this to account for changed offsets?
-          // originally: j = 2, j < 4
-          for (j = 2; j < 4; j++) {
+          for (j = 1; j < 3; j++) {  // Changed from j=2 since you removed double-move
             var square = i + PAWN_OFFSETS[us][j]
             if (square & 0x88) continue
-  
+            if (file(square) > 5 || rank(square) < 1 || rank(square) > 6) continue
+            
             if (board[square] != null && board[square].color === them) {
               add_move(board, moves, i, square, BITS.CAPTURE)
             }
           }
+          // old logic for pawn captures
+          // for (j = 2; j < 4; j++) {
+          //   var square = i + PAWN_OFFSETS[us][j]
+          //   if (square & 0x88) continue
+  
+          //   if (board[square] != null && board[square].color === them) {
+          //     add_move(board, moves, i, square, BITS.CAPTURE)
+          //   }
+          // }
         } else {
           for (var j = 0, len = PIECE_OFFSETS[piece.type].length; j < len; j++) {
             var offset = PIECE_OFFSETS[piece.type][j]
@@ -681,7 +693,7 @@ var SQUARES = {
        * to be captured)
        */
       if (!legal) {
-        console.log("moves (!legal): " + moves)
+        //console.log("moves (!legal): " + moves)
         return moves
       }
   
@@ -695,7 +707,7 @@ var SQUARES = {
         undo_move()
       }
   
-      console.log("legal_moves: " + JSON.stringify(legal_moves))
+      //console.log("legal_moves: " + JSON.stringify(legal_moves))
       return legal_moves
     }
   
@@ -851,6 +863,8 @@ var SQUARES = {
     }
   
     function in_threefold_repetition() {
+      //TODO: bring this back when it's clear it's not the bug
+      return false
       /* TODO: while this function is fine for casual use, a better
        * implementation would use a Zobrist key (instead of FEN). the
        * Zobrist key would be maintained in the make_move/undo_move functions,
@@ -869,6 +883,7 @@ var SQUARES = {
       while (true) {
         /* remove the last two fields in the FEN string, they're not needed
          * when checking for draw by rep */
+        //TODO: update to accommodate changes to FEN?
         var fen = generate_fen()
           .split(' ')
           .slice(0, 4)

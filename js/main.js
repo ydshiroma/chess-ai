@@ -554,7 +554,7 @@ function onDragStart(source, piece) {
 }
 
 function onDrop(source, target) {
-  console.log("onDrop runs");
+  //console.log("onDrop runs");
   undo_stack = [];
   removeGreySquares();
 
@@ -592,6 +592,10 @@ function onDrop(source, target) {
     // Make the best move for black
     window.setTimeout(function () {
       makeBestMove('b');
+      console.log("After AI move, board state:", game.fen());
+      console.log("Game over?", game.game_over());
+      console.log("In check?", game.in_check());
+      console.log("In checkmate?", game.in_checkmate());
       window.setTimeout(function () {
         showHint();
       }, 250);
