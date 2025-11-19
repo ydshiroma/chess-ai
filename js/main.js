@@ -72,7 +72,7 @@ function evaluateBoard(game, move, prevSum, color) {
   //console.log("game: " + JSON.stringify(game));
   //console.log("move: " + JSON.stringify(move));
   // console.log("prevSum: " + prevSum);
-  // console.log("color: " + color);
+  console.log("color: " + color);
   //console.log("get pieces: " + game.getPieces({ type: 'n', color: 'w' }));
   //console.log("board: " + game.board)
   //console.log("Board orientation:", board.orientation());
@@ -88,7 +88,7 @@ function evaluateBoard(game, move, prevSum, color) {
     }
   }
 
-  if (game.in_draw() || game.in_threefold_repetition() || game.in_stalemate())
+  if (game.in_draw() || game.in_stalemate())
   {
     return 0;
   }
@@ -144,7 +144,12 @@ function evaluateBoard(game, move, prevSum, color) {
   const num_to_add = value_one_move * available_moves;
   currSum += num_to_add;
   //console.log("current sum: " + currSum);
-  return currSum;
+  if (color == "b") {
+    return currSum;
+  } else {
+    return -currSum
+  }
+  
 }
 
 /*
@@ -316,17 +321,18 @@ function getBestMove(game, color, currSum) {
 function makeBestMove(color) {
   if (color === 'b') {
     var move = getBestMove(game, color, globalSum)[0];
-    globalSum = evaluateBoard(game, move, globalSum, 'b');
+    //globalSum = evaluateBoard(game, move, globalSum, 'b');
   } else {
     //TODO: change this logic for when it's possible to play as black?
     var move = getBestMove(game, color, -globalSum)[0];
-    globalSum = -evaluateBoard(game, move, globalSum, 'w');
+    //globalSum = -evaluateBoard(game, move, globalSum, 'w');
   }
 
   // if color is white, do globalsum for black and - the number
   // if color is black, just do globalsum
 
-  //globalSum = evaluateBoard(game, move, globalSum, 'b');
+  globalSum = evaluateBoard(game, move, globalSum, 'b');
+  //globalSum = evaluateBoard(game, move, globalSum, color);
   updateAdvantage();
 
   //TODO: comment back in if troubleshooting below messes things up
@@ -363,6 +369,7 @@ function makeBestMove(color) {
       .find('.square-' + squareToHighlight)
       .addClass('highlight-' + colorToHighlight);
   }
+  console.log("global sum: " + globalSum);
 }
 
 /*
@@ -565,9 +572,10 @@ function onDrop(source, target) {
     return 'snapback';
   }
 
-  //TODO: comment everything below this line in again when ready to troubleshoot engine
-
-  globalSum = evaluateBoard(game, move, globalSum, 'b');
+  //TODO: I think this is the problem
+  console.log("game.color: " + game.color);
+  console.log("move: " + JSON.stringify(move));
+  globalSum = evaluateBoard(game, move, globalSum, move.color);
   updateAdvantage();
 
   // Highlight latest move

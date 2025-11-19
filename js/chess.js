@@ -752,52 +752,6 @@ var Chess = function (fen) {
 
     return false;
   }
-  // function attacked(color, square) {
-  //   for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
-  //     /* did we run off the end of the board */
-  //     if (i & 0x88) {
-  //       i += 3
-  //       continue
-  //     }
-
-  //     /* if empty square or wrong color */
-  //     if (board[i] == null || board[i].color !== color) continue
-
-  //     var piece = board[i]
-  //     var difference = i - square
-  //     var index = difference + 119
-
-  //     if (ATTACKS[index] & (1 << SHIFTS[piece.type])) {
-  //       if (piece.type === PAWN) {
-  //         if (difference > 0) {
-  //           if (piece.color === WHITE) return true
-  //         } else {
-  //           if (piece.color === BLACK) return true
-  //         }
-  //         continue
-  //       }
-
-  //       /* if the piece is a knight or a king */
-  //       if (piece.type === 'n' || piece.type === 'k') return true
-
-  //       var offset = RAYS[index]
-  //       var j = i + offset
-
-  //       var blocked = false
-  //       while (j !== square) {
-  //         if (board[j] != null) {
-  //           blocked = true
-  //           break
-  //         }
-  //         j += offset
-  //       }
-
-  //       if (!blocked) return true
-  //     }
-  //   }
-
-  //   return false
-  // }
 
   function king_attacked(color) {
     return attacked(swap_color(color), kings[color]);
@@ -815,6 +769,7 @@ var Chess = function (fen) {
     return !in_check() && generate_moves().length === 0;
   }
 
+  //TODO: delete this if we decide not to use it
   function insufficient_material() {
     var pieces = {};
     var num_pieces = 0;
