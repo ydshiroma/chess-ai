@@ -133,7 +133,7 @@
     }
     o -= 1;
   }
-  console.log("Final position object:", t);
+  // console.log("Final position object:", t);
   return t;
 }
   // function pe(e) {

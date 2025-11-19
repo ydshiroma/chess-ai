@@ -72,7 +72,7 @@ function evaluateBoard(game, move, prevSum, color) {
   //console.log("game: " + JSON.stringify(game));
   //console.log("move: " + JSON.stringify(move));
   // console.log("prevSum: " + prevSum);
-  console.log("color: " + color);
+  
   //console.log("get pieces: " + game.getPieces({ type: 'n', color: 'w' }));
   //console.log("board: " + game.board)
   //console.log("Board orientation:", board.orientation());
@@ -93,15 +93,14 @@ function evaluateBoard(game, move, prevSum, color) {
     return 0;
   }
 
-  // let point_total = 0;
+  // let currSum = 0;
   let currSum = prevSum;
-
+ 
   if ('captured' in move)
     {
         // Opponent piece was captured (good for us)
         if (move.color === color)
         {
-          //TODO: how to access info about which piece was captured?
             currSum += weights[move.captured];
         }
         // Our piece was captured (bad for us)
@@ -128,8 +127,8 @@ function evaluateBoard(game, move, prevSum, color) {
         {
           // add value of piece that was promoted
           // subtract value of piece it was promoted to
-          currSum -= weights["p"];
-          currSum += weights["q"];
+          currSum += weights["p"];
+          currSum -= weights["q"];
         }
     }
 
@@ -140,10 +139,12 @@ function evaluateBoard(game, move, prevSum, color) {
   const value_one_move = 100 / 8;
   //TODO: can make this run faster by using game.ugly_moves()
   const available_moves = game.ugly_moves().length;
-  //console.log("available moves: " + available_moves)
+  // console.log("# of available moves: " + available_moves)
   const num_to_add = value_one_move * available_moves;
   currSum += num_to_add;
-  //console.log("current sum: " + currSum);
+  // console.log("current sum: " + currSum);
+  console.log("evaluation for color: " + color, ", move: " + JSON.stringify(move) + ": currSum = " + currSum + " (value of available moves = " + num_to_add + ", value of material = " + (currSum - num_to_add) + ")");
+
   if (color == "b") {
     return currSum;
   } else {
@@ -170,15 +171,16 @@ function evaluateBoard(game, move, prevSum, color) {
  *  the best move at the root of the current subtree.
  */
 function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
-  console.log("depth: " + depth, " for color: " + color);
+  //console.log("depth: " + depth, " for color: " + color);
 
   positionCount++;
   var children = game.ugly_moves({ verbose: true });
 
+  // "In case two or more moves give equal evaluation, the machine chooses the one which comes first in its survey of chains" - Ulam
   // Sort moves randomly, so the same move isn't always picked on ties
-  children.sort(function (a, b) {
-    return 0.5 - Math.random();
-  });
+  // children.sort(function (a, b) {
+  //   return 0.5 - Math.random();
+  // });
 
   var currMove;
   // Maximum depth exceeded or node is a terminal node (no children)
@@ -241,7 +243,6 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
 }
 
 function checkStatus(color) {
-  console.log("turn: " + game.turn);
   console.log("turn(): " + game.turn());
   if (game.in_checkmate()) {
     $('#status').html(`<b>Checkmate!</b> Oops, <b>${game.turn() == "b" ? "black" : "white"}</b> lost.`);
@@ -285,8 +286,8 @@ function updateAdvantage() {
  */
 function getBestMove(game, color, currSum) {
   positionCount = 0;
-  //TODO: is this correct? or is two moves for white, two for black = depth of 4?
-  depth = 2;
+  //TODO: is this correct? two moves for white, two for black = depth of 4?
+  depth = 4;
 
   // if (color === 'b') {
   //   var depth = parseInt($('#search-depth').find(':selected').text());
@@ -539,8 +540,8 @@ function greySquare(square) {
 }
 
 function onDragStart(source, piece) {
-  console.log("onDragStart called with source:", source, "piece:", piece);
-  console.log("SQUARES mapping for", source, "is:", game.SQUARES[source]);
+  // console.log("onDragStart called with source:", source, "piece:", piece);
+  // console.log("SQUARES mapping for", source, "is:", game.SQUARES[source]);
 
   // do not pick up pieces if the game is over
   if (game.game_over()) return false;
@@ -573,8 +574,8 @@ function onDrop(source, target) {
   }
 
   //TODO: I think this is the problem
-  console.log("game.color: " + game.color);
-  console.log("move: " + JSON.stringify(move));
+  // console.log("game.color: " + game.color);
+  // console.log("move: " + JSON.stringify(move));
   globalSum = evaluateBoard(game, move, globalSum, move.color);
   updateAdvantage();
 
@@ -594,11 +595,11 @@ function onDrop(source, target) {
     // Make the best move for black
     window.setTimeout(function () {
       makeBestMove('b');
-      console.log("After AI move, board state:", game.fen());
-      console.log("Game over?", game.game_over());
-      console.log("In check?", game.in_check());
-      console.log("In checkmate?", game.in_checkmate());
-      console.log(JSON.stringify(game));
+      // console.log("After AI move, board state:", game.fen());
+      // console.log("Game over?", game.game_over());
+      // console.log("In check?", game.in_check());
+      // console.log("In checkmate?", game.in_checkmate());
+      // console.log(JSON.stringify(game));
       window.setTimeout(function () {
         showHint();
       }, 250);
