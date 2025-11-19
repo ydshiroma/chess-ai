@@ -165,9 +165,7 @@ function evaluateBoard(game, move, prevSum, color) {
  *  the best move at the root of the current subtree.
  */
 function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
-  console.log("depth: " + depth);
-  // TODO: how to hard-code depth? is it 1 move = white and black both play or 1 move = either white or black plays?
-  //depth = 2
+  console.log("depth: " + depth, " for color: " + color);
 
   positionCount++;
   var children = game.ugly_moves({ verbose: true });
@@ -282,12 +280,14 @@ function updateAdvantage() {
  */
 function getBestMove(game, color, currSum) {
   positionCount = 0;
+  //TODO: is this correct? or is two moves for white, two for black = depth of 4?
+  depth = 2;
 
-  if (color === 'b') {
-    var depth = parseInt($('#search-depth').find(':selected').text());
-  } else {
-    var depth = parseInt($('#search-depth-white').find(':selected').text());
-  }
+  // if (color === 'b') {
+  //   var depth = parseInt($('#search-depth').find(':selected').text());
+  // } else {
+  //   var depth = parseInt($('#search-depth-white').find(':selected').text());
+  // }
 
   var d = new Date().getTime();
   var [bestMove, bestMoveValue] = minimax(
@@ -316,11 +316,17 @@ function getBestMove(game, color, currSum) {
 function makeBestMove(color) {
   if (color === 'b') {
     var move = getBestMove(game, color, globalSum)[0];
+    globalSum = evaluateBoard(game, move, globalSum, 'b');
   } else {
+    //TODO: change this logic for when it's possible to play as black?
     var move = getBestMove(game, color, -globalSum)[0];
+    globalSum = -evaluateBoard(game, move, globalSum, 'w');
   }
 
-  globalSum = evaluateBoard(game, move, globalSum, 'b');
+  // if color is white, do globalsum for black and - the number
+  // if color is black, just do globalsum
+
+  //globalSum = evaluateBoard(game, move, globalSum, 'b');
   updateAdvantage();
 
   //TODO: comment back in if troubleshooting below messes things up
