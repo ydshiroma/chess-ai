@@ -69,7 +69,7 @@ var weights = { p: 100, n: 300, r: 500, q: 900, k: 100000, k_e: 100000 };
  */
 //TODO: instead of using prevSum, just add up value of all pieces on the board?
 function evaluateBoard(game, move, prevSum, color) {
-  //console.log("game: " + JSON.stringify(game));
+  console.log("game: " + JSON.stringify(game));
   //console.log("move: " + JSON.stringify(move));
   // console.log("prevSum: " + prevSum);
   
@@ -138,12 +138,17 @@ function evaluateBoard(game, move, prevSum, color) {
   //TODO: need to do this for both colors? I'm confused. or am I just adding the value of one side's material here?
   const value_one_move = 100 / 8;
   //TODO: can make this run faster by using game.ugly_moves()
+  //THIS IS BLACK'S AVAILABLE MOVES
   const available_moves = game.ugly_moves().length;
+  //const moves_readable = game.moves();
+  //console.log("color: " + move.color);
+  //console.log("moves readable: " + moves_readable);
+  //console.log("fen: " + fen);
   // console.log("# of available moves: " + available_moves)
-  const num_to_add = value_one_move * available_moves;
-  currSum += num_to_add;
+  const opposite_color_available_moves = value_one_move * available_moves;
+  currSum -= opposite_color_available_moves;
   // console.log("current sum: " + currSum);
-  console.log("evaluation for color: " + color, ", move: " + JSON.stringify(move) + ": currSum = " + currSum + " (value of available moves = " + num_to_add + ", value of material = " + (currSum - num_to_add) + ")");
+  console.log("evaluation for color: " + color, ", move: " + JSON.stringify(move) + ": currSum = " + currSum + ", value of material = " + (currSum + opposite_color_available_moves) + ", value of opponent's available moves = " + opposite_color_available_moves + ")");
 
   if (color == "b") {
     return currSum;
