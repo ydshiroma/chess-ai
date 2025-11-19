@@ -69,7 +69,7 @@ var weights = { p: 100, n: 300, r: 500, q: 900, k: 100000, k_e: 100000 };
  * using the material weights and piece square tables.
  */
 //TODO: instead of using prevSum, just add up value of all pieces on the board?
-function evaluateBoard(game, move, prevSum, materialSum, color) {
+function evaluateBoard(game, move, prevSum, color) {
   console.log("game: " + JSON.stringify(game));
   //console.log("move: " + JSON.stringify(move));
   // console.log("prevSum: " + prevSum);
@@ -80,7 +80,7 @@ function evaluateBoard(game, move, prevSum, materialSum, color) {
 
   if (game.in_checkmate()) {
     // Opponent is in checkmate (good for us)
-    if (move.color === color) {
+    if (move.color === 'b') {
       return 10 ** 10;
     }
     // Our king's in checkmate (bad for us)
@@ -99,15 +99,15 @@ function evaluateBoard(game, move, prevSum, materialSum, color) {
  
   if ('captured' in move)
     {
-        // if black captures a piece, prevPieceValues increases
+        // if black captures a piece, materialSum increases
         if (move.color === 'b')
         {
-            materialSum += weights[move.captured];
+            currSum += weights[move.captured];
         }
         // if white captures, decrease score
         else
         {
-            materialSum -= weights[move.captured];
+            currSum -= weights[move.captured];
         }
     }
 
@@ -120,16 +120,16 @@ function evaluateBoard(game, move, prevSum, materialSum, color) {
       {
         // subtract value of piece that was promoted
         // add value of piece it was promoted to
-        materialSum -= weights["p"];
-        materialSum += weights["q"];
+        currSum -= weights["p"];
+        currSum += weights["q"];
       }
       // white was promoted -> negative score
       else
       {
         // add value of piece that was promoted
         // subtract value of piece it was promoted to
-        materialSum += weights["p"];
-        materialSum -= weights["q"];
+        currSum += weights["p"];
+        currSum -= weights["q"];
       }
   }
 
@@ -146,8 +146,13 @@ function evaluateBoard(game, move, prevSum, materialSum, color) {
   //console.log("moves readable: " + moves_readable);
   //console.log("fen: " + fen);
   // console.log("# of available moves: " + available_moves)
-  const opposite_color_available_moves = value_one_move * available_moves;
-  currSum -= opposite_color_available_moves;
+  const moves_value = value_one_move * available_moves;
+  if (game.turn() === 'b') {
+    currSum += moves_value;
+  } else {
+    currSum -= moves_value;
+  }
+
   // console.log("current sum: " + currSum);
 
   // if color = 'b'
@@ -157,14 +162,9 @@ function evaluateBoard(game, move, prevSum, materialSum, color) {
 
   // final sum = positive sum for your color - opponent's available moves
 
-  console.log("evaluation for color: " + color, ", move: " + JSON.stringify(move) + ": currSum = " + currSum + ", value of material = " + (currSum + opposite_color_available_moves) + ", value of opponent's available moves = " + opposite_color_available_moves + ")");
+  console.log("evaluation for color: " + color, ", move: " + JSON.stringify(move) + ": currSum = " + currSum + ", value of material = " + (currSum - moves_value) + ", value of opponent's available moves = " + moves_value + ")");
 
-  if (color == "b") {
-    return currSum;
-  } else {
-    return -currSum
-  }
-  
+  return currSum;
 }
 
 /*
@@ -315,7 +315,7 @@ function getBestMove(game, color, currSum) {
     depth,
     Number.NEGATIVE_INFINITY,
     Number.POSITIVE_INFINITY,
-    true,
+    color === 'b' ? true : false,
     currSum,
     color
   );
