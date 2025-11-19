@@ -111,25 +111,51 @@
     );
   }
   function pe(e) {
-    if (!ae(e)) return !1;
-    for (
-      var r, n = (e = e.replace(/ .+$/, "")).split("/"), t = {}, o = 6, a = 0;  // Changed from 8
-      a < 6;  // Changed from 8
-      a++
-    ) {
-      for (var i = n[a].split(""), s = 0, p = 0; p < i.length; p++) {
-        if (-1 !== i[p].search(/[1-6]/)) s += parseInt(i[p], 10);  // Changed from [1-8]
-        else
-          (t[F[s] + o] =
-            (r = i[p]).toLowerCase() === r
-              ? "b" + r.toUpperCase()
-              : "w" + r.toUpperCase()),
-            (s += 1);
+  if (!ae(e)) return !1;
+  for (
+    var r, n = (e = e.replace(/ .+$/, "")).split("/"), t = {}, o = 6, a = 0;
+    a < 6;
+    a++
+  ) {
+    console.log("Processing rank", o, "FEN part:", n[a]);
+    for (var i = n[a].split(""), s = 0, p = 0; p < i.length; p++) {
+      if (-1 !== i[p].search(/[1-6]/)) {
+        console.log("  Empty squares:", i[p], "file index now:", s);
+        s += parseInt(i[p], 10);
       }
-      o -= 1;
+      else {
+        var square = F[s] + o;
+        var piece = (r = i[p]).toLowerCase() === r ? "b" + r.toUpperCase() : "w" + r.toUpperCase();
+        console.log("  Placing", piece, "at", square, "(file index", s, ")");
+        t[square] = piece;
+        s += 1;
+      }
     }
-    return t;
+    o -= 1;
   }
+  console.log("Final position object:", t);
+  return t;
+}
+  // function pe(e) {
+  //   if (!ae(e)) return !1;
+  //   for (
+  //     var r, n = (e = e.replace(/ .+$/, "")).split("/"), t = {}, o = 6, a = 0;  // Changed from 8
+  //     a < 6;  // Changed from 8
+  //     a++
+  //   ) {
+  //     for (var i = n[a].split(""), s = 0, p = 0; p < i.length; p++) {
+  //       if (-1 !== i[p].search(/[1-6]/)) s += parseInt(i[p], 10);  // Changed from [1-8]
+  //       else
+  //         (t[F[s] + o] =
+  //           (r = i[p]).toLowerCase() === r
+  //             ? "b" + r.toUpperCase()
+  //             : "w" + r.toUpperCase()),
+  //           (s += 1);
+  //     }
+  //     o -= 1;
+  //   }
+  //   return t;
+  // }
   function ce(e) {
     if (!ie(e)) return !1;
     for (var r, n, t = "", o = 6, a = 0; a < 6; a++) {  // Changed from 8

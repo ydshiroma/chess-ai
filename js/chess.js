@@ -609,7 +609,8 @@ var Chess = function (fen) {
             if (square & 0x88) break;
 
             // Add this check for 6x6 board
-            if (file(square) > 5) break;
+            // if (file(square) > 5) break;
+            if (file(square) > 5 || rank(square) < 1 || rank(square) > 6) break;
 
             if (board[square] == null) {
               add_move(board, moves, i, square, BITS.NORMAL);
