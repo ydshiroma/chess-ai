@@ -133,27 +133,6 @@ function evaluateBoard(game, move, prevSum, color) {
         }
     }
 
-  // console.log("squares: " + game["SQUARES"])
-  // for (let i = 0; i < game["SQUARES"].length; i++) {
-  //   //console.log(game["SQUARES"][i]);
-  //   //console.log(game["SQUARES"][i].piece);
-  //   //console.log(game.get(game["SQUARES"][i]));
-
-  //   let piece = game.get(game["SQUARES"][i]);
-  //   let piece_value;
-  //   if (piece) {
-  //     if (piece["color"] == color) {
-  //       console.log("piece is " + color);
-  //       piece_value = weights[piece["type"]];        
-  //     } else {
-  //       console.log("piece is " + color);
-  //       piece_value = -weights[piece["type"]];
-  //     }
-  //     console.log(piece_value);
-  //     point_total += piece_value;
-  //   }
-    
-  // }
 
   // TODO: calculate number of possible moves for each piece and add to prevSum
   // 8 possible moves = 100 (equivalent to one pawn)
@@ -341,8 +320,14 @@ function makeBestMove(color) {
   globalSum = evaluateBoard(game, move, globalSum, 'b');
   updateAdvantage();
 
+  //TODO: comment back in if troubleshooting below messes things up
+  // game.move(move);
+  // board.position(game.fen());
+
   game.move(move);
-  board.position(game.fen());
+  var newFen = game.fen();
+  console.log("Setting board position to:", newFen);
+  board.position(newFen);
 
   if (color === 'b') {
     checkStatus('black');
