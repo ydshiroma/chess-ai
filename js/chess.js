@@ -353,13 +353,13 @@ var Chess = function (fen) {
     //console.log("squares: " + JSON.stringify(SQUARES))
 
     for (var i = SQUARES.a6; i <= SQUARES.f1; i++) {
-      console.log(
-        "generate_fen checking square",
-        i,
-        algebraic(i),
-        "piece:",
-        board[i]
-      );
+      // console.log(
+      //   "generate_fen checking square",
+      //   i,
+      //   algebraic(i),
+      //   "piece:",
+      //   board[i]
+      // );
       //console.log("i: " + i)
       //console.log("GENERATE_FEN i: " + i + ", board: " + JSON.stringify(board))
       //console.log("board: " + JSON.stringify(board))
@@ -916,14 +916,15 @@ var Chess = function (fen) {
     }
 
     /* reset the 50 move counter if a pawn is moved or a piece is captured */
-    if (move.piece === PAWN) {
-      half_moves = 0;
-    } else if (move.flags & BITS.CAPTURE) {
-      half_moves = 0;
-    } else {
-      half_moves++;
-    }
+    // if (move.piece === PAWN) {
+    //   half_moves = 0;
+    // } else if (move.flags & BITS.CAPTURE) {
+    //   half_moves = 0;
+    // } else {
+    //   half_moves++;
+    // }
 
+    half_moves += 1;
     if (turn === BLACK) {
       move_number++;
     }
@@ -1247,16 +1248,16 @@ var Chess = function (fen) {
 
     in_draw: function () {
       return (
-        half_moves >= 100 ||
-        in_stalemate() ||
-        insufficient_material() ||
-        in_threefold_repetition()
+        //half_moves >= 100 ||
+        in_stalemate()
+        //insufficient_material() ||
+        //in_threefold_repetition()
       );
     },
 
-    insufficient_material: function () {
-      return insufficient_material();
-    },
+    // insufficient_material: function () {
+    //   return insufficient_material();
+    // },
 
     in_threefold_repetition: function () {
       return in_threefold_repetition();
@@ -1264,11 +1265,11 @@ var Chess = function (fen) {
 
     game_over: function () {
       return (
-        half_moves >= 100 ||
+        //half_moves >= 100 ||
         in_checkmate() ||
-        in_stalemate() ||
-        insufficient_material() ||
-        in_threefold_repetition()
+        in_stalemate()
+        //insufficient_material() ||
+        //in_threefold_repetition()
       );
     },
 

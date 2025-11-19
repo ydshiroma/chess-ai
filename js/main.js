@@ -61,7 +61,7 @@ timer = null;
 
 // TODO: this is where piece weights are set
 // going to keep everything multiplied by 100
-var weights = { p: 100, n: 300, b: 300, r: 500, q: 900, k: 2000, k_e: 2000 };
+var weights = { p: 100, n: 300, r: 500, q: 900, k: 100000, k_e: 100000 };
 
 /*
  * Evaluates the board at this point in time,
@@ -165,6 +165,7 @@ function evaluateBoard(game, move, prevSum, color) {
  *  the best move at the root of the current subtree.
  */
 function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
+  console.log("depth: " + depth);
   // TODO: how to hard-code depth? is it 1 move = white and black both play or 1 move = either white or black plays?
   //depth = 2
 
@@ -237,18 +238,20 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
 }
 
 function checkStatus(color) {
+  console.log("turn: " + game.turn);
+  console.log("turn(): " + game.turn());
   if (game.in_checkmate()) {
-    $('#status').html(`<b>Checkmate!</b> Oops, <b>${color}</b> lost.`);
-  } else if (game.insufficient_material()) {
-    $('#status').html(`It's a <b>draw!</b> (Insufficient Material)`);
-  } else if (game.in_threefold_repetition()) {
-    $('#status').html(`It's a <b>draw!</b> (Threefold Repetition)`);
+    $('#status').html(`<b>Checkmate!</b> Oops, <b>${game.turn() == "b" ? "black" : "white"}</b> lost.`);
+  // } else if (game.insufficient_material()) {
+  //   $('#status').html(`It's a <b>draw!</b> (Insufficient Material)`);
+  // } else if (game.in_threefold_repetition()) {
+  //   $('#status').html(`It's a <b>draw!</b> (Threefold Repetition)`);
   } else if (game.in_stalemate()) {
     $('#status').html(`It's a <b>draw!</b> (Stalemate)`);
-  } else if (game.in_draw()) {
-    $('#status').html(`It's a <b>draw!</b> (50-move Rule)`);
+  // } else if (game.in_draw()) {
+  //   $('#status').html(`It's a <b>draw!</b> (50-move Rule)`);
   } else if (game.in_check()) {
-    $('#status').html(`Oops, <b>${color}</b> is in <b>check!</b>`);
+    $('#status').html(`Oops, <b>${game.turn() == "b" ? "black" : "white"}</b> is in <b>check!</b>`);
     return false;
   } else {
     $('#status').html(`No check, checkmate, or draw.`);
@@ -581,6 +584,7 @@ function onDrop(source, target) {
       console.log("Game over?", game.game_over());
       console.log("In check?", game.in_check());
       console.log("In checkmate?", game.in_checkmate());
+      console.log(JSON.stringify(game));
       window.setTimeout(function () {
         showHint();
       }, 250);

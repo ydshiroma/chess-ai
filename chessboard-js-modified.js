@@ -117,16 +117,16 @@
     a < 6;
     a++
   ) {
-    console.log("Processing rank", o, "FEN part:", n[a]);
+    //console.log("Processing rank", o, "FEN part:", n[a]);
     for (var i = n[a].split(""), s = 0, p = 0; p < i.length; p++) {
       if (-1 !== i[p].search(/[1-6]/)) {
-        console.log("  Empty squares:", i[p], "file index now:", s);
+        //console.log("  Empty squares:", i[p], "file index now:", s);
         s += parseInt(i[p], 10);
       }
       else {
         var square = F[s] + o;
         var piece = (r = i[p]).toLowerCase() === r ? "b" + r.toUpperCase() : "w" + r.toUpperCase();
-        console.log("  Placing", piece, "at", square, "(file index", s, ")");
+        //console.log("  Placing", piece, "at", square, "(file index", s, ")");
         t[square] = piece;
         s += 1;
       }
