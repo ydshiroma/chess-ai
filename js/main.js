@@ -27,6 +27,7 @@ var game = new Chess(
 //   { skipValidation: true },
 // )
 var globalSum = 0; // always from black's perspective. Negative for white's perspective.
+var materialSum = 0;
 var whiteSquareGrey = '#a9a9a9';
 var blackSquareGrey = '#696969';
 
@@ -68,7 +69,7 @@ var weights = { p: 100, n: 300, r: 500, q: 900, k: 100000, k_e: 100000 };
  * using the material weights and piece square tables.
  */
 //TODO: instead of using prevSum, just add up value of all pieces on the board?
-function evaluateBoard(game, move, prevSum, color) {
+function evaluateBoard(game, move, prevSum, materialSum, color) {
   console.log("game: " + JSON.stringify(game));
   //console.log("move: " + JSON.stringify(move));
   // console.log("prevSum: " + prevSum);
@@ -98,39 +99,39 @@ function evaluateBoard(game, move, prevSum, color) {
  
   if ('captured' in move)
     {
-        // Opponent piece was captured (good for us)
-        if (move.color === color)
+        // if black captures a piece, prevPieceValues increases
+        if (move.color === 'b')
         {
-            currSum += weights[move.captured];
+            materialSum += weights[move.captured];
         }
-        // Our piece was captured (bad for us)
+        // if white captures, decrease score
         else
         {
-            currSum -= weights[move.captured];
+            materialSum -= weights[move.captured];
         }
     }
 
-    if (move.flags.includes('p')) {
-        // NOTE: promote to queen for simplicity
-        move.promotion = 'q';
+  if (move.flags.includes('p')) {
+      // NOTE: promote to queen for simplicity
+      move.promotion = 'q';
 
-        // Our piece was promoted (good for us)
-        if (move.color === color)
-        {
-          // subtract value of piece that was promoted
-          // add value of piece it was promoted to
-          currSum -= weights["p"];
-          currSum += weights["q"];
-        }
-        // Opponent piece was promoted (bad for us)
-        else
-        {
-          // add value of piece that was promoted
-          // subtract value of piece it was promoted to
-          currSum += weights["p"];
-          currSum -= weights["q"];
-        }
-    }
+      // black was promoted -> positive score
+      if (move.color === 'b')
+      {
+        // subtract value of piece that was promoted
+        // add value of piece it was promoted to
+        materialSum -= weights["p"];
+        materialSum += weights["q"];
+      }
+      // white was promoted -> negative score
+      else
+      {
+        // add value of piece that was promoted
+        // subtract value of piece it was promoted to
+        materialSum += weights["p"];
+        materialSum -= weights["q"];
+      }
+  }
 
 
   // TODO: calculate number of possible moves for each piece and add to prevSum
@@ -148,6 +149,14 @@ function evaluateBoard(game, move, prevSum, color) {
   const opposite_color_available_moves = value_one_move * available_moves;
   currSum -= opposite_color_available_moves;
   // console.log("current sum: " + currSum);
+
+  // if color = 'b'
+  // return material - opposite_color_available_moves
+  // if color = 'w'
+  // return -(abs(materialSum) - opposite_color_available_moves)
+
+  // final sum = positive sum for your color - opponent's available moves
+
   console.log("evaluation for color: " + color, ", move: " + JSON.stringify(move) + ": currSum = " + currSum + ", value of material = " + (currSum + opposite_color_available_moves) + ", value of opponent's available moves = " + opposite_color_available_moves + ")");
 
   if (color == "b") {
