@@ -69,7 +69,7 @@ var weights = { p: 100, n: 300, r: 500, q: 900, k: 100000, k_e: 100000 };
  * using the material weights and piece square tables.
  */
 //TODO: instead of using prevSum, just add up value of all pieces on the board?
-function evaluateBoard(game, move, prevSum, prevMaterialSum, color) {
+function evaluateBoard(game, move, prevSum, color) {
   //console.log("game: " + JSON.stringify(game));
   //console.log("move: " + JSON.stringify(move));
   // console.log("prevSum: " + prevSum);
@@ -81,57 +81,58 @@ function evaluateBoard(game, move, prevSum, prevMaterialSum, color) {
   if (game.in_checkmate()) {
     // Opponent is in checkmate (good for us)
     if (move.color === 'b') {
-      return [(10 ** 10), (10 ** 10)];
+      return 10 ** 10;
     }
     // Our king's in checkmate (bad for us)
     else {
-      return [-(10 ** 10), -(10 ** 10)];
+      return -(10 ** 10);
     }
   }
 
   if (game.in_draw() || game.in_stalemate())
   {
-    return [0, 0];
+    return 0;
   }
 
   //let currSum = 0;
   //let currSum = prevSum;
-  let currMaterialSum = prevMaterialSum;
-  if ('captured' in move)
-    {
-        // if black captures a piece, materialSum increases
-        if (move.color === 'b')
-        {
-            currMaterialSum += weights[move.captured];
-        }
-        // if white captures, decrease score
-        else
-        {
-            currMaterialSum -= weights[move.captured];
-        }
-    }
+  //let currMaterialSum = globalMaterialSum;
+  let currMaterialSum = calculateMaterialSum();
+  // if ('captured' in move)
+  //   {
+  //       // if black captures a piece, materialSum increases
+  //       if (move.color === 'b')
+  //       {
+  //           currMaterialSum += weights[move.captured];
+  //       }
+  //       // if white captures, decrease score
+  //       else
+  //       {
+  //           currMaterialSum -= weights[move.captured];
+  //       }
+  //   }
 
-  if (move.flags.includes('p')) {
-      // NOTE: promote to queen for simplicity
-      move.promotion = 'q';
+  // if (move.flags.includes('p')) {
+  //     // NOTE: promote to queen for simplicity
+  //     move.promotion = 'q';
 
-      // black was promoted -> positive score
-      if (move.color === 'b')
-      {
-        // subtract value of piece that was promoted
-        // add value of piece it was promoted to
-        currMaterialSum -= weights["p"];
-        currMaterialSum += weights["q"];
-      }
-      // white was promoted -> negative score
-      else
-      {
-        // add value of piece that was promoted
-        // subtract value of piece it was promoted to
-        currMaterialSum += weights["p"];
-        currMaterialSum -= weights["q"];
-      }
-  }
+  //     // black was promoted -> positive score
+  //     if (move.color === 'b')
+  //     {
+  //       // subtract value of piece that was promoted
+  //       // add value of piece it was promoted to
+  //       currMaterialSum -= weights["p"];
+  //       currMaterialSum += weights["q"];
+  //     }
+  //     // white was promoted -> negative score
+  //     else
+  //     {
+  //       // add value of piece that was promoted
+  //       // subtract value of piece it was promoted to
+  //       currMaterialSum += weights["p"];
+  //       currMaterialSum -= weights["q"];
+  //     }
+  // }
 
   let currSum = currMaterialSum;
 
@@ -167,7 +168,7 @@ function evaluateBoard(game, move, prevSum, prevMaterialSum, color) {
 
   //console.log("evaluation for color: " + color, ", move: " + JSON.stringify(move) + ": currSum = " + currSum + ", value of material = " + (currMaterialSum) + ", value of opponent's available moves = " + moves_value + ")");
 
-  return [currSum, currMaterialSum];
+  return currSum;
 }
 
 function calculateMaterialSum() {
@@ -271,7 +272,7 @@ function calculateMaterialSum() {
 //     return [bestMove, minValue];
 //   }
 // }
-function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, materialSum, color) {
+function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
   //console.log("depth: " + depth, " for color: " + color);
 
   positionCount++;
@@ -286,28 +287,26 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, materialSum,
   var currMove;
   // Maximum depth exceeded or node is a terminal node (no children)
   if (depth === 0 || children.length === 0) {
-    return [null, sum, materialSum];
+    return [null, sum];
   }
 
   // Find maximum/minimum from list of 'children' (possible moves)
   var maxValue = Number.NEGATIVE_INFINITY;
   var minValue = Number.POSITIVE_INFINITY;
   var bestMove;
-  var bestMoveMaterial;
   for (var i = 0; i < children.length; i++) {
     currMove = children[i];
 
     // Note: in our case, the 'children' are simply modified game states
     var currPrettyMove = game.ugly_move(currMove);
-    var [newSum, newMaterialSum] = evaluateBoard(game, currPrettyMove, sum, materialSum, color);
-    var [childBestMove, childValue, childMaterial] = minimax(
+    var newSum = evaluateBoard(game, currPrettyMove, sum, color);
+    var [childBestMove, childValue] = minimax(
       game,
       depth - 1,
       alpha,
       beta,
       !isMaximizingPlayer,
       newSum,
-      newMaterialSum,
       color
     );
 
@@ -317,7 +316,6 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, materialSum,
       if (childValue > maxValue) {
         maxValue = childValue;
         bestMove = currPrettyMove;
-        bestMoveMaterial = childMaterial;
       }
       if (childValue > alpha) {
         alpha = childValue;
@@ -326,7 +324,6 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, materialSum,
       if (childValue < minValue) {
         minValue = childValue;
         bestMove = currPrettyMove;
-        bestMoveMaterial = childMaterial;
       }
       if (childValue < beta) {
         beta = childValue;
@@ -341,9 +338,9 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, materialSum,
   }
 
   if (isMaximizingPlayer) {
-    return [bestMove, maxValue, childMaterial];
+    return [bestMove, maxValue];
   } else {
-    return [bestMove, minValue, childMaterial];
+    return [bestMove, minValue];
   }
 }
 
@@ -413,7 +410,7 @@ function updateAdvantage() {
 
 //   return [bestMove, bestMoveValue];
 // }
-function getBestMove(game, color, currSum, currMaterialSum) {
+function getBestMove(game, color, currSum) {
   positionCount = 0;
   //TODO: is this correct? two moves for white, two for black = depth of 4?
   depth = 4;
@@ -425,14 +422,13 @@ function getBestMove(game, color, currSum, currMaterialSum) {
   // }
 
   var d = new Date().getTime();
-  var [bestMove, bestMoveValue, newMaterialSum] = minimax(
+  var [bestMove, bestMoveValue] = minimax(
     game,
     depth,
     Number.NEGATIVE_INFINITY,
     Number.POSITIVE_INFINITY,
     color === 'b' ? true : false,
     currSum,
-    currMaterialSum,
     color
   );
   var d2 = new Date().getTime();
@@ -443,14 +439,14 @@ function getBestMove(game, color, currSum, currMaterialSum) {
   $('#time').text(moveTime / 1000);
   $('#positions-per-s').text(Math.round(positionsPerS));
 
-  return [bestMove, bestMoveValue, newMaterialSum];
+  return [bestMove, bestMoveValue];
 }
 
 /*
  * Makes the best legal move for the given color.
  */
 function makeBestMove(color) {
-  var [move, moveValue, newMaterialSum] = getBestMove(game, color, globalSum, globalMaterialSum);
+  var [move, moveValue] = getBestMove(game, color, globalSum);
   
   game.move(move);
   var newFen = game.fen();
@@ -731,7 +727,7 @@ function onDrop(source, target) {
   //TODO: I think this is the problem
   // console.log("game.color: " + game.color);
   // console.log("move: " + JSON.stringify(move));
-  [globalSum, globalMaterialSum] = evaluateBoard(game, move, globalSum, globalMaterialSum, move.color);
+  globalSum = evaluateBoard(game, move, globalSum, globalMaterialSum, move.color);
   globalSum = globalMaterialSum;
   updateAdvantage();
 
