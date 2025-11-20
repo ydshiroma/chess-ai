@@ -170,6 +170,30 @@ function evaluateBoard(game, move, prevSum, prevMaterialSum, color) {
   return [currSum, currMaterialSum];
 }
 
+function calculateMaterialSum() {
+  let sum = 0;
+  let fen = game.fen();
+  let position = fen.split(' ')[0];  // Get just the position part, ignore turn/flags
+  
+  for (let i = 0; i < position.length; i++) {
+    let char = position.charAt(i);
+    
+    // Skip slashes (rank separators)
+    if (char === '/') continue;
+    
+    // Skip numbers (empty squares)
+    if (/[0-9]/.test(char)) continue;
+    
+    // Process piece characters
+    let type = char.toLowerCase();
+    let color = char === char.toLowerCase() ? 'b' : 'w';
+    let value = weights[type];
+    
+    sum += color === 'b' ? value : -value;
+  }
+  return sum;
+}
+
 /*
  * Performs the minimax algorithm to choose the best move: https://en.wikipedia.org/wiki/Minimax (pseudocode provided)
  * Recursively explores all possible moves up to a given depth, and evaluates the game board at the leaves.
@@ -438,7 +462,8 @@ function makeBestMove(color) {
   globalSum = moveValue;
   console.log("global sum after: " + globalSum);
   console.log("global material sum before: " + globalMaterialSum);
-  globalMaterialSum = newMaterialSum;
+  //globalMaterialSum = newMaterialSum;
+  globalMaterialSum = calculateMaterialSum();
   console.log("global material sum after: " + globalMaterialSum);
   updateAdvantage();
   checkStatus(color);
@@ -707,6 +732,7 @@ function onDrop(source, target) {
   // console.log("game.color: " + game.color);
   // console.log("move: " + JSON.stringify(move));
   [globalSum, globalMaterialSum] = evaluateBoard(game, move, globalSum, globalMaterialSum, move.color);
+  globalSum = globalMaterialSum;
   updateAdvantage();
 
   // Highlight latest move
