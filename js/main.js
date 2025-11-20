@@ -81,17 +81,17 @@ function evaluateBoard(game, move, prevSum, color) {
   if (game.in_checkmate()) {
     // Opponent is in checkmate (good for us)
     if (move.color === 'b') {
-      return 10 ** 10;
+      return [10 ** 10, 10 ** 10];
     }
     // Our king's in checkmate (bad for us)
     else {
-      return -(10 ** 10);
+      return [-(10 ** 10), -(10 ** 10)];
     }
   }
 
   if (game.in_draw() || game.in_stalemate())
   {
-    return 0;
+    return [0, 0];
   }
 
   //let currSum = 0;
@@ -166,9 +166,9 @@ function evaluateBoard(game, move, prevSum, color) {
 
   // final sum = positive sum for your color - opponent's available moves
 
-  //console.log("evaluation for color: " + color, ", move: " + JSON.stringify(move) + ": currSum = " + currSum + ", value of material = " + (currMaterialSum) + ", value of opponent's available moves = " + moves_value + ")");
+  console.log("evaluation for color: " + color, ", move: " + JSON.stringify(move) + ": currSum = " + currSum + ", value of material = " + (currMaterialSum) + ", value of opponent's available moves = " + moves_value + ")");
 
-  return currSum;
+  return [currSum, currMaterialSum];
 }
 
 function calculateMaterialSum() {
@@ -272,7 +272,7 @@ function calculateMaterialSum() {
 //     return [bestMove, minValue];
 //   }
 // }
-function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
+function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, materialSum, color) {
   //console.log("depth: " + depth, " for color: " + color);
 
   positionCount++;
@@ -299,7 +299,7 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
 
     // Note: in our case, the 'children' are simply modified game states
     var currPrettyMove = game.ugly_move(currMove);
-    var newSum = evaluateBoard(game, currPrettyMove, sum, color);
+    var [newSum, newMaterialSum] = evaluateBoard(game, currPrettyMove, sum, materialSum, color);
     var [childBestMove, childValue] = minimax(
       game,
       depth - 1,
@@ -307,6 +307,7 @@ function minimax(game, depth, alpha, beta, isMaximizingPlayer, sum, color) {
       beta,
       !isMaximizingPlayer,
       newSum,
+      newMaterialSum,
       color
     );
 
@@ -410,7 +411,7 @@ function updateAdvantage() {
 
 //   return [bestMove, bestMoveValue];
 // }
-function getBestMove(game, color, currSum) {
+function getBestMove(game, color, currSum, currMaterialSum) {
   positionCount = 0;
   //TODO: is this correct? two moves for white, two for black = depth of 4?
   depth = 4;
@@ -429,6 +430,7 @@ function getBestMove(game, color, currSum) {
     Number.POSITIVE_INFINITY,
     color === 'b' ? true : false,
     currSum,
+    currMaterialSum,  // Add this back
     color
   );
   var d2 = new Date().getTime();
@@ -446,7 +448,7 @@ function getBestMove(game, color, currSum) {
  * Makes the best legal move for the given color.
  */
 function makeBestMove(color) {
-  var [move, moveValue] = getBestMove(game, color, globalSum);
+  var [move, moveValue] = getBestMove(game, color, globalSum, globalMaterialSum);
   
   game.move(move);
   var newFen = game.fen();
@@ -455,6 +457,7 @@ function makeBestMove(color) {
 
   // Update globalSum - it's already computed by evaluateBoard in minimax
   console.log("global sum before: " + globalSum);
+  //TODO: I don't think this is working
   globalSum = moveValue;
   console.log("global sum after: " + globalSum);
   console.log("global material sum before: " + globalMaterialSum);
